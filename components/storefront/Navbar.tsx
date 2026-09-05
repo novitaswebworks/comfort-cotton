@@ -9,13 +9,6 @@ export default function Navbar() {
       <Link href="/" className="pointer-events-auto text-lg md:text-xl font-medium tracking-widest uppercase hover:opacity-70 transition-opacity" style={{ fontFamily: "'Playfair Display', serif" }}>
         Comfort Cotton
       </Link>
-
-      {/* Right Actions */}
-      <div className="flex items-center gap-6 pointer-events-auto">
-        <Link href="/admin" className="text-xs uppercase tracking-[0.2em] font-medium hover:opacity-70 transition-opacity">
-          Admin Portal
-        </Link>
-      </div>
     </nav>
   );
 }
