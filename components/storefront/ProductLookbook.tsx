@@ -17,9 +17,11 @@ export interface Product {
   tag: string;
   image_url: string;
   zoom_image_url: string;
+  category: string;
+  pillow_image_url: string;
 }
 
-export default function ProductLookbook({ products }: { products: Product[] }) {
+export default function ProductLookbook({ products, chapter = 1, title = "The Collection" }: { products: Product[]; chapter?: number; title?: string }) {
   const lookbookRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
@@ -97,9 +99,9 @@ export default function ProductLookbook({ products }: { products: Product[] }) {
       >
         {/* Editorial Intro Slide */}
         <div className="w-[85vw] md:w-[100vw] h-full flex flex-col justify-center px-6 md:px-24 shrink-0 snap-center border-r border-border relative">
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-8">Vol. 1</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-8">Vol. {chapter}</p>
           <h2 className="text-6xl md:text-[9rem] font-light leading-[0.9] tracking-tighter" style={{ fontFamily: "'Playfair Display', serif" }}>
-            The <br /> Collection.
+            {title}.
           </h2>
           <div className="mt-12 md:mt-24 max-w-sm flex items-start gap-4">
             <ArrowUpRight className="shrink-0 text-muted-foreground hidden md:block" />

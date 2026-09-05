@@ -85,7 +85,8 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
         <div className="w-full md:w-2/3 flex flex-col">
           <ProductGallery images={[
             { url: product.image_url, alt: `${product.name} Full View` },
-            { url: product.zoom_image_url, alt: `${product.name} Fabric Texture Detail` }
+            { url: product.zoom_image_url, alt: `${product.name} Fabric Texture Detail` },
+            ...(product.pillow_image_url ? [{ url: product.pillow_image_url, alt: `${product.name} Matching Pillow Covers` }] : [])
           ]} />
         </div>
       </div>

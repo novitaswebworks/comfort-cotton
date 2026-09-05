@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { User, Menu } from "lucide-react";
 
 export default function Navbar() {
   return (

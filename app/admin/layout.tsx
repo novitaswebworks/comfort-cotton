@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, PlusCircle, LayoutDashboard, Settings, Compass, Box } from "lucide-react";
+import { Package, PlusCircle, LayoutDashboard, Compass, Box } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="text-sm font-medium">Production</span>
           </div>
           <div className="flex items-center gap-4">
-            <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "w-8 h-8 rounded-md" } }} />
+            <UserButton appearance={{ elements: { avatarBox: "w-8 h-8 rounded-md" } }} />
           </div>
         </header>
         <div className="p-8 max-w-6xl mx-auto animate-in fade-in duration-500">

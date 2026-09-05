@@ -18,11 +18,13 @@ export async function updateProduct(id: string, formData: FormData) {
   const price = parseFloat(formData.get('price') as string);
   const material = formData.get('material') as string;
   const tag = formData.get('tag') as string;
+  const category = formData.get('category') as string;
   
   const mainImageFile = formData.get('main_image') as File | null;
   const zoomImageFile = formData.get('zoom_image') as File | null;
+  const pillowImageFile = formData.get('pillow_image') as File | null;
 
-  const updates: any = { name, type, price, material, tag };
+  const updates: Record<string, string | number> = { name, type, price, material, tag, category };
 
   // Upload Main Image if provided
   if (mainImageFile && mainImageFile.size > 0) {
@@ -46,6 +48,18 @@ export async function updateProduct(id: string, formData: FormData) {
     if (error) throw error;
     const { data: pubData } = supabaseAdmin.storage.from('products').getPublicUrl(data.path);
     updates.zoom_image_url = pubData.publicUrl;
+  }
+
+  // Upload Pillow Cover Image if provided
+  if (pillowImageFile && pillowImageFile.size > 0) {
+    const fileName = `pillow_${Date.now()}_${pillowImageFile.name.replace(/\\s/g, '_')}`;
+    const { data, error } = await supabaseAdmin.storage
+      .from('products')
+      .upload(fileName, pillowImageFile);
+    
+    if (error) throw error;
+    const { data: pubData } = supabaseAdmin.storage.from('products').getPublicUrl(data.path);
+    updates.pillow_image_url = pubData.publicUrl;
   }
 
   const { error } = await supabaseAdmin

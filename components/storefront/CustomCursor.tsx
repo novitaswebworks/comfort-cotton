@@ -9,7 +9,7 @@ export default function CustomCursor() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    setIsMounted(true); // eslint-disable-line react-hooks/set-state-in-effect
     const mouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
@@ -28,7 +28,7 @@ export default function CustomCursor() {
     default: {
       x: mousePosition.x - 16,
       y: mousePosition.y - 16,
-      backgroundColor: "transparent",
+      backgroundColor: "rgba(0,0,0,0)",
       border: "1px solid var(--foreground)",
     },
     hover: {

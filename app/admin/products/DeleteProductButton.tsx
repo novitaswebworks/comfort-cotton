@@ -1,7 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { deleteProduct } from "./actions";
 
 export default function DeleteProductButton({ id }: { id: string }) {

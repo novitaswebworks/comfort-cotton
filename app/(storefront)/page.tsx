@@ -15,11 +15,37 @@ export default async function Home() {
     .select("*")
     .order("created_at", { ascending: true });
 
+  const allProducts = products || [];
+  const { doubleProducts, singleProducts } = allProducts.reduce(
+    (acc, p) => {
+      if (p.category === 'Double Bedsheet') acc.doubleProducts.push(p);
+      else if (p.category === 'Single Bedsheet') acc.singleProducts.push(p);
+      return acc;
+    },
+    { doubleProducts: [] as typeof allProducts, singleProducts: [] as typeof allProducts }
+  );
+
   return (
     <main className="relative w-full text-foreground selection:bg-muted selection:text-foreground">
       <HeroResponsive />
       
-      <ProductLookbook products={products || []} />
+      {/* Chapter 1: Double Bedsheets */}
+      {doubleProducts.length > 0 && (
+        <ProductLookbook 
+          products={doubleProducts} 
+          chapter={1}
+          title="Double Bedsheets"
+        />
+      )}
+
+      {/* Chapter 2: Single Bedsheets */}
+      {singleProducts.length > 0 && (
+        <ProductLookbook 
+          products={singleProducts}
+          chapter={2}
+          title="Single Bedsheets"
+        />
+      )}
 
       <footer className="py-24 border-t border-border bg-background text-center flex flex-col items-center justify-center">
         <h2 className="text-4xl md:text-6xl font-light mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>

@@ -55,6 +55,7 @@ export default async function AdminProductsPage() {
                 <TableRow>
                   <TableHead className="w-[80px]">Image</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Material</TableHead>
                   <TableHead className="text-right">Price</TableHead>
@@ -74,6 +75,11 @@ export default async function AdminProductsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                        {product.category || 'Uncategorized'}
+                      </span>
+                    </TableCell>
                     <TableCell>{product.type}</TableCell>
                     <TableCell className="text-zinc-500">{product.material}</TableCell>
                     <TableCell className="text-right font-medium">₹{product.price}</TableCell>
