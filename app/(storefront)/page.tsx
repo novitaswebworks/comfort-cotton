@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import HeroResponsive from "@/components/storefront/HeroResponsive";
 import ProductLookbook from "@/components/storefront/ProductLookbook";
 import CollectionsGrid from "@/components/storefront/CollectionsGrid";
+import SecretLogout from "@/components/storefront/SecretLogout";
 
 export const revalidate = 0; // Ensure data is always fresh
 
@@ -40,9 +41,11 @@ export default async function Home() {
         <h2 className="text-4xl md:text-6xl font-light mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
           Comfort Cottons.
         </h2>
-        <p className="text-sm text-muted-foreground uppercase tracking-widest">
-          © {new Date().getFullYear()} The Art of Sleep
-        </p>
+        <SecretLogout>
+          <p className="text-sm text-muted-foreground uppercase tracking-widest relative z-10">
+            © {new Date().getFullYear()} The Art of Sleep
+          </p>
+        </SecretLogout>
       </footer>
     </main>
   );
