@@ -1,70 +1,13 @@
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { MessageCircle } from 'lucide-react';
-import ProductGallery from './ProductGallery';
-import type { Metadata } from 'next';
+const fs = require('fs');
 
-export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
+let content = fs.readFileSync('app/product/[tag]/page.tsx', 'utf8');
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('tag', resolvedParams.tag)
-    .eq('status', 'Published')
-    .single();
+// 1. Remove the custom navigation that overlaps with the global Navbar
+content = content.replace(/\{\/\* Navigation \*\/\}\s*<nav className="fixed top-0 left-0 w-full z-50 mix-blend-difference text-white p-6 md:p-8 flex items-center justify-between pointer-events-none">\s*<Link href="\/" className="pointer-events-auto flex items-center gap-2 hover:opacity-70 transition-opacity">\s*<ArrowLeft className="w-5 h-5" \/>\s*<span className="text-sm tracking-widest uppercase font-medium">Back to Collection<\/span>\s*<\/Link>\s*<\/nav>/, '');
+content = content.replace("import { ArrowLeft, MessageCircle } from 'lucide-react';", "import { MessageCircle } from 'lucide-react';");
 
-  if (!product) {
-    return { title: 'Product Not Found - Comfort Cottons' };
-  }
-
-  return {
-    title: `${product.name} | Comfort Cottons`,
-    description: `${product.material}. Available now for ₹${product.price}.`,
-    openGraph: {
-      title: `${product.name} | Comfort Cottons`,
-      description: `${product.material}. Luxury bedding for your home.`,
-      images: [{ url: product.image_url }],
-    },
-  };
-}
-
-export default async function ProductPage({ params }: { params: Promise<{ tag: string }> }) {
-  const resolvedParams = await params;
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
-
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('tag', resolvedParams.tag)
-    .eq('status', 'Published')
-    .single();
-
-  if (!product) {
-    notFound();
-  }
-
-  const { data: relatedProducts } = await supabase
-    .from('products')
-    .select('*')
-    .eq('category', product.category)
-    .eq('status', 'Published')
-    .neq('id', product.id)
-    .limit(3);
-
-  const whatsappText = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
-  const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappText)}`;
-
-  return (
-    <main className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
-      
-
+// 2. Fix layout and typography
+const newLayout = `
       <div className="flex flex-col md:flex-row min-h-screen">
         {/* Left: Sticky Details */}
         <div className="w-full md:w-[45vw] lg:w-[40vw] p-8 pt-32 md:p-16 md:pt-32 flex flex-col justify-between md:sticky md:top-0 md:h-screen border-r border-border z-10 bg-background">
@@ -119,9 +62,9 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
         {/* Right: Scrollable Gallery */}
         <div className="w-full md:w-[55vw] lg:w-[60vw] flex flex-col bg-muted/20">
           <ProductGallery images={[
-            { url: product.image_url, alt: `${product.name} Full View` },
-            { url: product.zoom_image_url, alt: `${product.name} Fabric Texture Detail` },
-            ...(product.pillow_image_url && product.pillow_image_url.startsWith('http') ? [{ url: product.pillow_image_url, alt: `${product.name} Matching Pillow Covers` }] : [])
+            { url: product.image_url, alt: \`\${product.name} Full View\` },
+            { url: product.zoom_image_url, alt: \`\${product.name} Fabric Texture Detail\` },
+            ...(product.pillow_image_url && product.pillow_image_url.startsWith('http') ? [{ url: product.pillow_image_url, alt: \`\${product.name} Matching Pillow Covers\` }] : [])
           ]} />
         </div>
       </div>
@@ -139,7 +82,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-16">
               {relatedProducts.map((rel) => (
-                <Link key={rel.id} href={`/product/${rel.tag}`} className="group block">
+                <Link key={rel.id} href={\`/product/\${rel.tag}\`} className="group block">
                   <div className="aspect-[4/5] relative overflow-hidden mb-6 bg-muted">
                     <Image 
                       fill 
@@ -160,19 +103,9 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
           </div>
         </div>
       )}
+`;
 
-      {/* Mobile Fixed Order Button */}
-      <div className="fixed bottom-0 left-0 w-full p-4 bg-background/90 backdrop-blur-md border-t border-border md:hidden z-50">
-        <a 
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 bg-foreground text-background px-6 py-4 w-full"
-        >
-          <MessageCircle className="w-4 h-4" />
-          <span className="font-medium text-xs tracking-[0.15em] uppercase">Inquire / Order via WhatsApp</span>
-        </a>
-      </div>
-    </main>
-  );
-}
+content = content.replace(/<div className="flex flex-col md:flex-row min-h-screen">[\s\S]*?<\/div>\s*\{\/\* Mobile Fixed Order Button \*\/\}/, newLayout.trim() + '\n\n      {/* Mobile Fixed Order Button */}');
+
+fs.writeFileSync('app/product/[tag]/page.tsx', content);
+console.log('done');
