@@ -8,20 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from '@/lib/constants';
-import { getPresignedUploadUrl, createProductDb } from '../actions';
+import { getPresignedUploadUrl, updateProductDb } from '../../actions';
 
-export default function NewProductPage() {
+export default function EditProductForm({ product }: { product: any }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function uploadFile(file: File, prefix: string) {
-    if (!file || file.size === 0) return "";
+  async function uploadFile(file: File | null, prefix: string) {
+    if (!file || file.size === 0) return null;
     
-    // 1. Get Presigned URL from Server Action
     const fileName = `${prefix}_${Date.now()}_${file.name.replace(/\\s/g, '_')}`;
     const { signedUrl, publicUrl } = await getPresignedUploadUrl('products', fileName);
 
-    // 2. Upload directly to Supabase from the Browser!
     const res = await fetch(signedUrl, {
       method: 'PUT',
       body: file,
@@ -49,28 +47,29 @@ export default function NewProductPage() {
       const zoomImageFile = formData.get('zoom_image') as File;
       const pillowImageFile = formData.get('pillow_image') as File;
 
-      // Upload files directly from the browser to bypass Vercel limits
-      const image_url = await uploadFile(mainImageFile, 'main');
-      const zoom_image_url = await uploadFile(zoomImageFile, 'zoom');
-      const pillow_image_url = await uploadFile(pillowImageFile, 'pillow');
+      const newMainUrl = await uploadFile(mainImageFile, 'main');
+      const newZoomUrl = await uploadFile(zoomImageFile, 'zoom');
+      const newPillowUrl = await uploadFile(pillowImageFile, 'pillow');
 
-      // Send the resulting URLs to the database
-      await createProductDb({
+      const updates: Record<string, string | number> = {
         name: formData.get('name') as string,
         type: formData.get('type') as string,
         price: parseFloat(formData.get('price') as string),
         material: formData.get('material') as string,
         tag: formData.get('tag') as string,
         category: formData.get('category') as string,
-        image_url,
-        zoom_image_url,
-        pillow_image_url
-      });
+      };
+
+      if (newMainUrl) updates.image_url = newMainUrl;
+      if (newZoomUrl) updates.zoom_image_url = newZoomUrl;
+      if (newPillowUrl) updates.pillow_image_url = newPillowUrl;
+
+      await updateProductDb(product.id, updates);
 
       router.push('/admin/products');
     } catch (error) {
       console.error(error);
-      alert("Failed to upload product. Check console for details.");
+      alert("Failed to update product. Check console for details.");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,8 +82,8 @@ export default function NewProductPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Add New Product</h2>
-          <p className="text-zinc-500 text-sm">Create a new bedsheet listing for the storefront.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Edit Product</h2>
+          <p className="text-zinc-500 text-sm">Update details for {product.name}.</p>
         </div>
       </div>
 
@@ -97,13 +96,14 @@ export default function NewProductPage() {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Product Name</Label>
-                <Input id="name" name="name" placeholder="e.g. Midnight Blue" required />
+                <Input id="name" name="name" defaultValue={product.name} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <select 
                   id="category" 
                   name="category" 
+                  defaultValue={product.category || 'Double bed king size'}
                   required
                   className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
                 >
@@ -117,39 +117,39 @@ export default function NewProductPage() {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="type">Type / Size</Label>
-                <Input id="type" name="type" placeholder="e.g. 90x100 inches" required />
+                <Input id="type" name="type" defaultValue={product.type} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="price">Price (₹)</Label>
-                <Input id="price" name="price" type="number" step="0.01" placeholder="8900.00" required />
+                <Input id="price" name="price" type="number" step="0.01" defaultValue={product.price} required />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="material">Material & Quality</Label>
-                <Input id="material" name="material" placeholder="e.g. 100% Egyptian Cotton • 400 TC" required />
+                <Input id="material" name="material" defaultValue={product.material} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tag">WhatsApp Tag</Label>
-                <Input id="tag" name="tag" placeholder="e.g. DBL-MIDNIGHT" required />
+                <Input id="tag" name="tag" defaultValue={product.tag} required />
               </div>
             </div>
 
             <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-sm font-medium">Image Uploads</h3>
-              <p className="text-xs text-zinc-500 mb-4">You must create a public bucket named &quot;products&quot; in your Supabase Storage for this to work.</p>
+              <h3 className="text-sm font-medium">Update Images (Optional)</h3>
+              <p className="text-xs text-zinc-500 mb-4">Leave empty to keep current images.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="main_image">Main Image</Label>
-                  <Input id="main_image" name="main_image" type="file" accept="image/*" required />
+                  <Label htmlFor="main_image">New Main Image</Label>
+                  <Input id="main_image" name="main_image" type="file" accept="image/*" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="zoom_image">Zoom / Texture Image</Label>
-                  <Input id="zoom_image" name="zoom_image" type="file" accept="image/*" required />
+                  <Label htmlFor="zoom_image">New Zoom/Texture Image</Label>
+                  <Input id="zoom_image" name="zoom_image" type="file" accept="image/*" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pillow_image">Pillow Cover Image</Label>
+                  <Label htmlFor="pillow_image">New Pillow Cover Image</Label>
                   <Input id="pillow_image" name="pillow_image" type="file" accept="image/*" />
                   <p className="text-[10px] text-zinc-400">Optional — matching pillow covers</p>
                 </div>
@@ -165,10 +165,10 @@ export default function NewProductPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Uploading directly...
+                    Saving Changes...
                   </>
                 ) : (
-                  "Upload & Save Product"
+                  "Save Changes"
                 )}
               </button>
             </div>

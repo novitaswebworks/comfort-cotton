@@ -10,57 +10,54 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, supabaseServiceKey);
 }
 
-export async function updateProduct(id: string, formData: FormData) {
+export async function getPresignedUploadUrl(bucket: string, fileName: string) {
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data, error } = await supabaseAdmin.storage
+    .from(bucket)
+    .createSignedUploadUrl(fileName);
+
+  if (error) {
+    console.error("Failed to create presigned URL:", error);
+    throw new Error("Failed to create upload URL");
+  }
+
+  // Get the public URL for it immediately so we can store it in DB
+  const { data: pubData } = supabaseAdmin.storage.from(bucket).getPublicUrl(data.path);
+
+  return {
+    signedUrl: data.signedUrl,
+    path: data.path,
+    token: data.token,
+    publicUrl: pubData.publicUrl
+  };
+}
+
+export async function createProductDb(productData: {
+  name: string;
+  type: string;
+  price: number;
+  material: string;
+  tag: string;
+  category: string;
+  image_url: string;
+  zoom_image_url: string;
+  pillow_image_url: string;
+}) {
   const supabaseAdmin = getSupabaseAdmin();
 
-  const name = formData.get('name') as string;
-  const type = formData.get('type') as string;
-  const price = parseFloat(formData.get('price') as string);
-  const material = formData.get('material') as string;
-  const tag = formData.get('tag') as string;
-  const category = formData.get('category') as string;
-  
-  const mainImageFile = formData.get('main_image') as File | null;
-  const zoomImageFile = formData.get('zoom_image') as File | null;
-  const pillowImageFile = formData.get('pillow_image') as File | null;
+  const { error } = await supabaseAdmin.from('products').insert([productData]);
 
-  const updates: Record<string, string | number> = { name, type, price, material, tag, category };
-
-  // Upload Main Image if provided
-  if (mainImageFile && mainImageFile.size > 0) {
-    const fileName = `main_${Date.now()}_${mainImageFile.name.replace(/\\s/g, '_')}`;
-    const { data, error } = await supabaseAdmin.storage
-      .from('products')
-      .upload(fileName, mainImageFile);
-    
-    if (error) throw error;
-    const { data: pubData } = supabaseAdmin.storage.from('products').getPublicUrl(data.path);
-    updates.image_url = pubData.publicUrl;
+  if (error) {
+    console.error("Failed to insert product into database:", error);
+    throw new Error("Failed to create product");
   }
 
-  // Upload Zoom Image if provided
-  if (zoomImageFile && zoomImageFile.size > 0) {
-    const fileName = `zoom_${Date.now()}_${zoomImageFile.name.replace(/\\s/g, '_')}`;
-    const { data, error } = await supabaseAdmin.storage
-      .from('products')
-      .upload(fileName, zoomImageFile);
-    
-    if (error) throw error;
-    const { data: pubData } = supabaseAdmin.storage.from('products').getPublicUrl(data.path);
-    updates.zoom_image_url = pubData.publicUrl;
-  }
+  revalidatePath('/');
+  revalidatePath('/admin/products');
+}
 
-  // Upload Pillow Cover Image if provided
-  if (pillowImageFile && pillowImageFile.size > 0) {
-    const fileName = `pillow_${Date.now()}_${pillowImageFile.name.replace(/\\s/g, '_')}`;
-    const { data, error } = await supabaseAdmin.storage
-      .from('products')
-      .upload(fileName, pillowImageFile);
-    
-    if (error) throw error;
-    const { data: pubData } = supabaseAdmin.storage.from('products').getPublicUrl(data.path);
-    updates.pillow_image_url = pubData.publicUrl;
-  }
+export async function updateProductDb(id: string, updates: Record<string, string | number>) {
+  const supabaseAdmin = getSupabaseAdmin();
 
   const { error } = await supabaseAdmin
     .from('products')
@@ -68,13 +65,12 @@ export async function updateProduct(id: string, formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    console.error(error);
+    console.error("Failed to update product:", error);
     throw new Error("Failed to update product");
   }
 
   revalidatePath('/');
   revalidatePath('/admin/products');
-  redirect('/admin/products');
 }
 
 export async function deleteProduct(id: string) {
