@@ -8,33 +8,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from '@/lib/constants';
-import { getPresignedUploadUrl, createProductDb } from '../actions';
+import { getCloudinarySignature, createProductDb } from '../actions';
 
 export default function NewProductPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function uploadFile(file: File, prefix: string) {
+  async function uploadFile(file: File) {
     if (!file || file.size === 0) return "";
     
-    // 1. Get Presigned URL from Server Action
-    const fileName = `${prefix}_${Date.now()}_${file.name.replace(/\\s/g, '_')}`;
-    const { signedUrl, publicUrl } = await getPresignedUploadUrl('products', fileName);
+    // 1. Get Signature from Server
+    const { timestamp, signature } = await getCloudinarySignature();
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
 
-    // 2. Upload directly to Supabase from the Browser!
-    const res = await fetch(signedUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type,
-      },
+    // 2. Upload directly to Cloudinary
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey || "");
+    formData.append("timestamp", timestamp.toString());
+    formData.append("signature", signature);
+    formData.append("folder", "comfort-cottons");
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: formData,
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to upload ${prefix} image`);
+      throw new Error("Failed to upload image to Cloudinary");
     }
 
-    return publicUrl;
+    const data = await res.json();
+    return data.secure_url;
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,9 +56,9 @@ export default function NewProductPage() {
       const pillowImageFile = formData.get('pillow_image') as File;
 
       // Upload files directly from the browser to bypass Vercel limits
-      const image_url = await uploadFile(mainImageFile, 'main');
-      const zoom_image_url = await uploadFile(zoomImageFile, 'zoom');
-      const pillow_image_url = await uploadFile(pillowImageFile, 'pillow');
+      const image_url = await uploadFile(mainImageFile);
+      const zoom_image_url = await uploadFile(zoomImageFile);
+      const pillow_image_url = await uploadFile(pillowImageFile);
 
       // Send the resulting URLs to the database
       await createProductDb({
@@ -152,7 +158,7 @@ export default function NewProductPage() {
 
             <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-medium">Image Uploads</h3>
-              <p className="text-xs text-zinc-500 mb-4">You must create a public bucket named &quot;products&quot; in your Supabase Storage for this to work.</p>
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="main_image">Main Image</Label>

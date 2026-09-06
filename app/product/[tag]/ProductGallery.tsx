@@ -25,7 +25,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             className="relative w-full h-[70vh] md:h-screen group cursor-pointer border-b border-border last:border-b-0 overflow-hidden"
             onClick={() => setFullscreenImage(image.url)}
           >
-            <Image fill unoptimized src={image.url} alt={image.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" sizes="100vw" priority={idx === 0} />
+            <Image fill src={image.url} alt={image.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" sizes="100vw" priority={idx === 0} />
             
             {/* Context Label */}
             <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 mix-blend-difference text-white flex flex-col">
@@ -59,7 +59,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
               <X className="w-8 h-8" />
             </button>
-            <Image fill unoptimized src={fullscreenImage} alt="Fullscreen Detail" className="object-contain" sizes="100vw" />
+            <Image fill src={fullscreenImage} alt="Fullscreen Detail" className="object-contain" sizes="100vw" />
           </motion.div>
         )}
       </AnimatePresence>
