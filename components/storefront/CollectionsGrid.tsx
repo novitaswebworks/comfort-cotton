@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 export const CATEGORY_DATA = [
@@ -63,7 +64,7 @@ export default function CollectionsGrid() {
               href={`/collections/${cat.slug}`}
               className={`group relative overflow-hidden bg-muted block ${cat.className}`}
             >
-              <img 
+              <Image fill 
                 src={cat.image} 
                 alt={cat.name} 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"

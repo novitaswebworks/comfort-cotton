@@ -62,6 +62,7 @@ export default function NewProductPage() {
         material: formData.get('material') as string,
         tag: formData.get('tag') as string,
         category: formData.get('category') as string,
+        status: formData.get('status') as string,
         image_url,
         zoom_image_url,
         pillow_image_url
@@ -110,6 +111,19 @@ export default function NewProductPage() {
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Publish Status</Label>
+                <select 
+                  id="status" 
+                  name="status" 
+                  required
+                  defaultValue="Published"
+                  className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+                >
+                  <option value="Draft">Draft (Hidden)</option>
+                  <option value="Published">Published (Live)</option>
                 </select>
               </div>
             </div>

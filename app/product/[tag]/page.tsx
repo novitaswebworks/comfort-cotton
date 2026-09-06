@@ -4,6 +4,34 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import ProductGallery from './ProductGallery';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
+
+  const { data: product } = await supabase
+    .from('products')
+    .select('*')
+    .eq('tag', resolvedParams.tag)
+    .eq('status', 'Published')
+    .single();
+
+  if (!product) {
+    return { title: 'Product Not Found - Comfort Cottons' };
+  }
+
+  return {
+    title: `${product.name} | Comfort Cottons`,
+    description: `${product.material}. Available now for ₹${product.price}.`,
+    openGraph: {
+      title: `${product.name} | Comfort Cottons`,
+      description: `${product.material}. Luxury bedding for your home.`,
+      images: [{ url: product.image_url }],
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ tag: string }> }) {
   const resolvedParams = await params;
@@ -14,6 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
     .from('products')
     .select('*')
     .eq('tag', resolvedParams.tag)
+    .eq('status', 'Published')
     .single();
 
   if (!product) {

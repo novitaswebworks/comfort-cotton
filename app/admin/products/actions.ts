@@ -39,6 +39,7 @@ export async function createProductDb(productData: {
   material: string;
   tag: string;
   category: string;
+  status: string;
   image_url: string;
   zoom_image_url: string;
   pillow_image_url: string;

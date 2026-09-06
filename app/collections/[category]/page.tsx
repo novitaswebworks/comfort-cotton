@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { CATEGORIES } from "@/lib/constants";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
 export const revalidate = 0;
@@ -40,6 +41,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
     .from("products")
     .select("*")
     .eq("category", categoryName)
+    .eq("status", "Published")
     .order("created_at", { ascending: false });
 
   const validProducts = products || [];
@@ -75,17 +77,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               return (
                 <Link key={product.id} href={`/product/${product.tag}`} className={`group block ${validProducts.length === 1 ? 'max-w-lg' : ''}`}>
                   <div className="aspect-[4/5] overflow-hidden mb-6 bg-muted relative">
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+                    <Image fill src={product.image_url} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     {hasValidPillowImage && (
-                      <img 
-                        src={product.pillow_image_url} 
-                        alt={`${product.name} Pillow Cover`}
-                        className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
-                      />
+                      <Image fill src={product.pillow_image_url} alt={`${product.name} Pillow Cover`} className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     )}
                   </div>
                   <h3 className="text-xl font-light tracking-wide">{product.name}</h3>

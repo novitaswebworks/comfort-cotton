@@ -58,6 +58,7 @@ export default function EditProductForm({ product }: { product: any }) {
         material: formData.get('material') as string,
         tag: formData.get('tag') as string,
         category: formData.get('category') as string,
+        status: formData.get('status') as string,
       };
 
       if (newMainUrl) updates.image_url = newMainUrl;
@@ -112,6 +113,21 @@ export default function EditProductForm({ product }: { product: any }) {
                   ))}
                 </select>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Publish Status</Label>
+                <select 
+                  id="status" 
+                  name="status" 
+                  required
+                  defaultValue={product.status || 'Published'}
+                  className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+                >
+                  <option value="Draft">Draft (Hidden)</option>
+                  <option value="Published">Published (Live)</option>
+                </select>
+              </div>
+
             </div>
 
             <div className="grid grid-cols-2 gap-6">
