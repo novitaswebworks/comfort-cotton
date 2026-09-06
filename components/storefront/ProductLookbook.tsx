@@ -95,7 +95,7 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
     <section ref={lookbookRef} className="relative w-full h-[100svh] overflow-hidden bg-background border-t border-border">
       <div 
         ref={trackRef} 
-        className="flex h-full w-full md:w-max overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none hide-scrollbar items-center touch-pan-y"
+        className="flex h-full w-full md:w-max overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none hide-scrollbar items-center"
       >
         {/* Editorial Intro Slide */}
         <div className="w-[85vw] md:w-[100vw] h-full flex flex-col justify-center px-6 md:px-24 shrink-0 snap-center border-r border-border relative">
