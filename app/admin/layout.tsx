@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Toaster } from "sonner";
 import { Package, PlusCircle, LayoutDashboard, Compass, Box } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
@@ -64,6 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
         <div className="p-8 max-w-6xl mx-auto animate-in fade-in duration-500">
           {children}
+        <Toaster position="top-right" richColors />
         </div>
       </main>
     </div>

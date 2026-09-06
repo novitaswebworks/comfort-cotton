@@ -3,6 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { useTransition } from "react";
 import { deleteProduct } from "./actions";
+import { toast } from "sonner";
 
 export default function DeleteProductButton({ id }: { id: string }) {
   const [isPending, startTransition] = useTransition();

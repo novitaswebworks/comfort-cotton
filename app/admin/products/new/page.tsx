@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -78,7 +79,7 @@ export default function NewProductPage() {
         pillow_image_url
       });
       if (res && !res.success) throw new Error(res.error);
-
+      toast.success("Product created successfully!");
       router.push('/admin/products');
     } catch (error) {
       console.error(error);
