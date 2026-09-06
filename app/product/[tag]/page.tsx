@@ -65,9 +65,9 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
     <main className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
       
 
-      <div className="flex flex-col md:flex-row min-h-screen">
+      <div className="flex flex-col-reverse md:flex-row min-h-screen">
         {/* Left: Sticky Details */}
-        <div className="w-full md:w-[45vw] lg:w-[40vw] p-8 pt-32 md:p-16 md:pt-32 flex flex-col justify-between md:sticky md:top-0 md:h-screen border-r border-border z-10 bg-background">
+        <div className="w-full md:w-[45vw] lg:w-[40vw] p-8 pt-8 md:p-16 md:pt-32 flex flex-col justify-between md:sticky md:top-0 md:h-screen border-r border-border z-10 bg-background">
           <div>
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <span className="text-[10px] uppercase tracking-[0.2em] font-medium border border-foreground/20 px-4 py-1.5 rounded-full">

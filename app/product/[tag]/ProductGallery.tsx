@@ -14,7 +14,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
 
   return (
     <>
-      <div className="w-full h-full">
+      <div className="w-full flex md:flex-col overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none hide-scrollbar h-[60svh] md:h-auto">
         <AnimatePresence>
         {images.map((image, idx) => (
           <motion.div 
@@ -22,15 +22,15 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: idx * 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
             key={idx} 
-            className="relative w-full h-[70vh] md:h-screen group cursor-pointer border-b border-border last:border-b-0 overflow-hidden"
+            className="relative flex-shrink-0 w-full snap-center h-full md:h-screen group cursor-pointer border-r md:border-r-0 md:border-b border-border last:border-b-0 overflow-hidden"
             onClick={() => setFullscreenImage(image.url)}
           >
-            <Image fill src={image.url} alt={image.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" sizes="100vw" priority={idx === 0} />
+            <Image fill src={image.url} alt={image.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" sizes="(max-width: 768px) 100vw, 60vw" priority={idx === 0} />
             
             {/* Context Label */}
             <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 mix-blend-difference text-white flex flex-col">
               <span className="text-[10px] uppercase tracking-[0.3em] opacity-70 mb-1">
-                {idx === 0 ? '01 / Full View' : '02 / Texture Detail'}
+                {idx === 0 ? '01 / Full View' : '02 / Detail'}
               </span>
               <span className="text-sm font-medium tracking-widest uppercase">
                 {idx === 0 ? 'Overall Drape' : 'Fabric Quality'}
@@ -38,9 +38,16 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             </div>
 
             {/* Expand Icon */}
-            <div className="absolute top-6 right-6 md:top-12 md:right-12 mix-blend-difference text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-6 right-6 md:top-12 md:right-12 mix-blend-difference text-white opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
               <Maximize2 className="w-6 h-6" />
             </div>
+
+            {/* Mobile Swipe Indicator (Only on first image) */}
+            {idx === 0 && images.length > 1 && (
+              <div className="absolute bottom-6 right-6 md:hidden mix-blend-difference text-white text-[10px] uppercase tracking-widest animate-pulse">
+                Swipe ➔
+              </div>
+            )}
           </motion.div>
         ))}
         </AnimatePresence>
@@ -56,7 +63,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             className="fixed inset-0 z-[99999] bg-black flex items-center justify-center cursor-zoom-out"
             onClick={() => setFullscreenImage(null)}
           >
-            <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+            <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-10">
               <X className="w-8 h-8" />
             </button>
             <Image fill src={fullscreenImage} alt="Fullscreen Detail" className="object-contain" sizes="100vw" />
