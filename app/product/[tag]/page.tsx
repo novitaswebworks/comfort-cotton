@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import ProductGallery from './ProductGallery';
 import type { Metadata } from 'next';
@@ -48,6 +49,14 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
   if (!product) {
     notFound();
   }
+
+  const { data: relatedProducts } = await supabase
+    .from('products')
+    .select('*')
+    .eq('category', product.category)
+    .eq('status', 'Published')
+    .neq('id', product.id)
+    .limit(3);
 
   const whatsappText = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
   const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappText)}`;
@@ -118,6 +127,30 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
             ...(product.pillow_image_url && product.pillow_image_url.startsWith('http') ? [{ url: product.pillow_image_url, alt: `${product.name} Matching Pillow Covers` }] : [])
           ]} />
         </div>
+
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="w-full bg-muted/30 py-24 px-6 md:px-16 border-t border-border">
+          <h2 className="text-sm font-medium tracking-widest uppercase mb-12 text-center">You Might Also Like</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {relatedProducts.map((rel) => (
+              <Link key={rel.id} href={`/product/${rel.tag}`} className="group block">
+                <div className="aspect-[4/5] relative overflow-hidden mb-4 bg-muted">
+                  <Image 
+                    fill 
+                    src={rel.image_url} 
+                    alt={rel.name} 
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                </div>
+                <h3 className="font-light text-lg">{rel.name}</h3>
+                <p className="text-sm text-muted-foreground mt-1">₹{rel.price}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       </div>
 
       {/* Mobile Fixed Order Button */}
