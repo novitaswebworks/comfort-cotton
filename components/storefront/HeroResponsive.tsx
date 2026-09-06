@@ -63,7 +63,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full h-[100svh] flex flex-col justify-between px-4 py-6 md:px-12 md:py-12 overflow-hidden bg-background">
+    <section ref={containerRef} className="relative w-full h-[100svh] max-h-[1080px] max-w-[1920px] mx-auto flex flex-col justify-between px-4 py-6 md:px-12 md:py-12 overflow-hidden bg-background">
       
       {/* Spacer to push content down since Navbar is fixed */}
       <div className="h-12 md:h-16 w-full" />
@@ -74,7 +74,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
         <div className="reveal-mask md:-ml-48 -ml-12">
           <h1 
             ref={title1Ref} 
-            className="text-[14vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+            className="text-[14vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             THE ART
@@ -84,7 +84,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
         <div className="reveal-mask -mt-1 md:-mt-6 z-10">
           <h1 
             ref={title2Ref} 
-            className="text-[12vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter text-outline mix-blend-difference whitespace-nowrap" 
+            className="text-[12vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter text-outline mix-blend-difference whitespace-nowrap" 
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             OF MODERN
@@ -94,7 +94,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
         <div className="reveal-mask md:ml-48 ml-16 -mt-1 md:-mt-6 z-10">
           <h1 
             ref={title3Ref} 
-            className="text-[14vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+            className="text-[14vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             SLEEP.
@@ -105,7 +105,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
 
       {/* Main Image with Mask */}
       <div className="absolute inset-0 z-10 flex items-center justify-center p-2 md:p-12 pointer-events-none">
-        <div ref={imgWrapperRef} className="relative w-full h-[85vh] md:w-[80%] md:h-[90%] overflow-hidden rounded-2xl md:rounded-none mt-10 md:mt-0 shadow-2xl">
+        <div ref={imgWrapperRef} className="relative w-full h-[85vh] md:w-[80%] md:max-w-[1400px] md:h-[90%] md:max-h-[800px] xl:max-h-[900px] overflow-hidden rounded-2xl md:rounded-none mt-10 md:mt-0 shadow-2xl">
           <img 
             ref={imgRef}
             src={heroImage} 
