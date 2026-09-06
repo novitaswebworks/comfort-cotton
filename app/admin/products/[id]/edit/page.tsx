@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { updateProduct } from '../../actions';
 import { notFound } from 'next/navigation';
 import { CATEGORIES } from '@/lib/constants';
+import { SubmitButton } from '../../new/SubmitButton';
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -108,12 +109,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             </div>
 
             <div className="pt-6 flex justify-end">
-              <button 
-                type="submit"
-                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-2 rounded-md text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
-              >
-                Save Changes
-              </button>
+              <SubmitButton text="Save Changes" loadingText="Saving..." />
             </div>
           </CardContent>
         </Card>

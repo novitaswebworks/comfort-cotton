@@ -5,7 +5,15 @@ const isProtectedRoute = createRouteMatcher(['/admin(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    await auth.protect()
+    await auth.protect();
+
+    // Check for the admin role in the public metadata
+    const authObject = await auth();
+    const role = (authObject.sessionClaims?.metadata as any)?.role;
+    if (role !== 'admin') {
+      const url = new URL('/', req.url);
+      return Response.redirect(url);
+    }
   }
 })
 

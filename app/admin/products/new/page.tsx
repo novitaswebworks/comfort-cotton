@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { createClient } from '@supabase/supabase-js';
 import { CATEGORIES } from '@/lib/constants';
+import { SubmitButton } from './SubmitButton';
 
 export default async function NewProductPage() {
   async function createProduct(formData: FormData) {
@@ -168,12 +169,7 @@ export default async function NewProductPage() {
             </div>
 
             <div className="pt-6 flex justify-end">
-              <button 
-                type="submit"
-                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-2 rounded-md text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
-              >
-                Upload & Save Product
-              </button>
+              <SubmitButton />
             </div>
           </CardContent>
         </Card>
