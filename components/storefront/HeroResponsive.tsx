@@ -78,10 +78,10 @@ export default function HeroResponsive() {
         <div className="reveal-mask md:ml-32 ml-16 -mt-3 md:-mt-10 z-10">
           <h1 
             ref={title2Ref} 
-            className="text-[22vw] md:text-[10vw] leading-[0.8] tracking-tighter text-outline drop-shadow-xl"
+            className="text-[22vw] md:text-[18vw] font-light leading-[0.8] tracking-tighter text-outline ml-16 md:ml-32 -mt-3 md:-mt-10 relative z-0 mix-blend-difference" 
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            COTTON
+            COTTONS
           </h1>
         </div>
 
@@ -93,7 +93,7 @@ export default function HeroResponsive() {
           <img 
             ref={imgRef}
             src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2942&auto=format&fit=crop" 
-            alt="Premium Cotton Bedsheets"
+            alt="Premium Cottons Bedsheets"
             className="absolute top-0 left-0 w-full h-[120%] object-cover object-[center_30%] origin-top brightness-[0.85]"
           />
           {/* Grain overlay for luxury feel */}

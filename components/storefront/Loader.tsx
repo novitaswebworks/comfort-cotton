@@ -41,7 +41,7 @@ export default function Loader() {
       duration: 0.4,
       ease: "power2.out"
     })
-    // 2. Comfort Cotton branding fades in
+    // 2. Comfort Cottons branding fades in
     .fromTo(textRef.current, {
       y: 50,
       opacity: 0,
@@ -157,7 +157,7 @@ export default function Loader() {
           className="absolute z-10 text-3xl md:text-6xl tracking-[0.2em] uppercase font-light text-[#EAE6DF] opacity-0 text-center px-4 leading-relaxed"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          Comfort <br className="md:hidden"/> Cotton
+          Comfort <br className="md:hidden"/> Cottons
         </div>
 
       </div>

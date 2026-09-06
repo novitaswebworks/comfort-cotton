@@ -49,7 +49,7 @@ export default async function Home() {
 
       <footer className="py-24 border-t border-border bg-background text-center flex flex-col items-center justify-center">
         <h2 className="text-4xl md:text-6xl font-light mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
-          Comfort Cotton.
+          Comfort Cottons.
         </h2>
         <p className="text-sm text-muted-foreground uppercase tracking-widest">
           © {new Date().getFullYear()} The Art of Sleep

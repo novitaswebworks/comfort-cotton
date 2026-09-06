@@ -20,7 +20,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
     notFound();
   }
 
-  const whatsappText = `Hello Comfort Cotton! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
+  const whatsappText = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
   const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappText)}`;
 
   return (

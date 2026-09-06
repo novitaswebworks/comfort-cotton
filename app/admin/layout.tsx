@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="w-8 h-8 bg-zinc-900 dark:bg-white rounded-md flex items-center justify-center">
               <Box className="w-4 h-4 text-white dark:text-zinc-900" />
             </div>
-            <h1 className="text-sm font-semibold tracking-tight">Comfort Cotton</h1>
+            <h1 className="text-sm font-semibold tracking-tight">Comfort Cottons</h1>
           </div>
         </div>
         

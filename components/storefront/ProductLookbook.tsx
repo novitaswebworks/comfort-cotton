@@ -77,7 +77,7 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
   const handleOrder = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const text = `Hello Comfort Cotton! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
+    const text = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
     window.open(`https://wa.me/1234567890?text=${encodeURIComponent(text)}`, '_blank');
   };
 
