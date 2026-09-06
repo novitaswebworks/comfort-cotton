@@ -85,16 +85,16 @@ export async function deleteProduct(id: string) {
 export async function getCloudinarySignature() {
   const timestamp = Math.round(new Date().getTime() / 1000);
   
-  cloudinary.config({
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!apiSecret) throw new Error("Cloudinary API Secret is missing on server");
 
   const signature = cloudinary.utils.api_sign_request(
     { timestamp, folder: 'comfort-cottons' },
-    process.env.CLOUDINARY_API_SECRET!
+    apiSecret
   );
 
-  return { timestamp, signature };
+  return { timestamp, signature, cloudName, apiKey };
 }

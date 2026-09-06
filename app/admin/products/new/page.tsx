@@ -17,15 +17,17 @@ export default function NewProductPage() {
   async function uploadFile(file: File) {
     if (!file || file.size === 0) return "";
     
-    // 1. Get Signature from Server
-    const { timestamp, signature } = await getCloudinarySignature();
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+    // 1. Get Signature & Keys dynamically from Server (bypasses build-time cache issues)
+    const { timestamp, signature, cloudName, apiKey } = await getCloudinarySignature();
+
+    if (!cloudName || !apiKey) {
+      throw new Error("Cloudinary configuration missing. Please check Vercel environment variables.");
+    }
 
     // 2. Upload directly to Cloudinary
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("api_key", apiKey || "");
+    formData.append("api_key", apiKey);
     formData.append("timestamp", timestamp.toString());
     formData.append("signature", signature);
     formData.append("folder", "comfort-cottons");
@@ -36,7 +38,9 @@ export default function NewProductPage() {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to upload image to Cloudinary");
+      const errorText = await res.text();
+      console.error("Cloudinary error:", errorText);
+      throw new Error("Failed to upload image to Cloudinary: " + errorText);
     }
 
     const data = await res.json();
