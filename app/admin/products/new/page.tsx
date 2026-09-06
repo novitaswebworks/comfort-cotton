@@ -61,7 +61,7 @@ export default function NewProductPage() {
       const pillow_image_url = await uploadFile(pillowImageFile);
 
       // Send the resulting URLs to the database
-      await createProductDb({
+      const res = await createProductDb({
         name: formData.get('name') as string,
         type: formData.get('type') as string,
         price: parseFloat(formData.get('price') as string),
@@ -73,6 +73,7 @@ export default function NewProductPage() {
         zoom_image_url,
         pillow_image_url
       });
+      if (res && !res.success) throw new Error(res.error);
 
       router.push('/admin/products');
     } catch (error) {

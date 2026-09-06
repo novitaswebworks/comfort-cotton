@@ -73,7 +73,8 @@ export default function EditProductForm({ product }: { product: any }) {
       if (newZoomUrl) updates.zoom_image_url = newZoomUrl;
       if (newPillowUrl) updates.pillow_image_url = newPillowUrl;
 
-      await updateProductDb(product.id, updates);
+      const res = await updateProductDb(product.id, updates);
+      if (res && !res.success) throw new Error(res.error);
 
       router.push('/admin/products');
     } catch (error) {

@@ -33,63 +33,53 @@ export async function getPresignedUploadUrl(bucket: string, fileName: string) {
   };
 }
 
-export async function createProductDb(productData: {
-  name: string;
-  type: string;
-  price: number;
-  material: string;
-  tag: string;
-  category: string;
-  status: string;
-  image_url: string;
-  zoom_image_url: string;
-  pillow_image_url: string;
-}) {
-  const supabaseAdmin = getSupabaseAdmin();
-
-  const { error } = await supabaseAdmin.from('products').insert([productData]);
-
-  if (error) {
-    console.error("Failed to insert product into database:", error);
-    throw new Error("Failed to create product");
+export async function createProductDb(productData: any) {
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const { error } = await supabaseAdmin.from('products').insert([productData]);
+    if (error) return { success: false, error: error.message };
+    revalidatePath('/');
+    revalidatePath('/admin/products');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed" };
   }
-
-  revalidatePath('/');
-  revalidatePath('/admin/products');
 }
 
 export async function updateProductDb(id: string, updates: Record<string, string | number>) {
-  const supabaseAdmin = getSupabaseAdmin();
-
-  const { error } = await supabaseAdmin
-    .from('products')
-    .update(updates)
-    .eq('id', id);
-
-  if (error) {
-    console.error("Failed to update product:", error);
-    throw new Error("Failed to update product");
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const { error } = await supabaseAdmin.from('products').update(updates).eq('id', id);
+    if (error) return { success: false, error: error.message };
+    revalidatePath('/');
+    revalidatePath('/admin/products');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed" };
   }
-
-  revalidatePath('/');
-  revalidatePath('/admin/products');
 }
 
 export async function deleteProduct(id: string) {
-  const supabaseAdmin = getSupabaseAdmin();
-  
-  const { error } = await supabaseAdmin
-    .from("products")
-    .delete()
-    .eq("id", id);
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+    
+    const { error } = await supabaseAdmin
+      .from("products")
+      .delete()
+      .eq("id", id);
 
-  if (error) {
-    console.error("Failed to delete product:", error);
-    throw new Error("Failed to delete product");
+    if (error) {
+      console.error("Failed to delete product:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: any) {
+    console.error("Exception deleting product:", err);
+    return { success: false, error: err.message || "An unexpected error occurred" };
   }
-
-  revalidatePath("/admin/products");
-  revalidatePath("/");
 }
 
 export async function getCloudinarySignature() {
@@ -97,7 +87,7 @@ export async function getCloudinarySignature() {
   
   cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
+    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
