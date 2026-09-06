@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import HeroResponsive from "@/components/storefront/HeroResponsive";
 import ProductLookbook from "@/components/storefront/ProductLookbook";
+import CollectionsGrid from "@/components/storefront/CollectionsGrid";
 
 export const revalidate = 0; // Ensure data is always fresh
 
@@ -16,36 +17,24 @@ export default async function Home() {
     .order("created_at", { ascending: true });
 
   const allProducts = products || [];
-  const { doubleProducts, singleProducts } = allProducts.reduce(
-    (acc, p) => {
-      if (p.category === 'Double Bedsheet') acc.doubleProducts.push(p);
-      else if (p.category === 'Single Bedsheet') acc.singleProducts.push(p);
-      return acc;
-    },
-    { doubleProducts: [] as typeof allProducts, singleProducts: [] as typeof allProducts }
-  );
+
+  const heroImage = allProducts[0]?.image_url || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2942&auto=format&fit=crop";
 
   return (
     <main className="relative w-full text-foreground selection:bg-muted selection:text-foreground">
-      <HeroResponsive />
+      <HeroResponsive heroImage={heroImage} />
       
-      {/* Chapter 1: Double Bedsheets */}
-      {doubleProducts.length > 0 && (
+      {/* Featured Picks Lookbook */}
+      {allProducts.length > 0 && (
         <ProductLookbook 
-          products={doubleProducts} 
+          products={allProducts.slice(0, 5)} // Show top 5 products
           chapter={1}
-          title="Double Bedsheets"
+          title="Featured Picks"
         />
       )}
 
-      {/* Chapter 2: Single Bedsheets */}
-      {singleProducts.length > 0 && (
-        <ProductLookbook 
-          products={singleProducts}
-          chapter={2}
-          title="Single Bedsheets"
-        />
-      )}
+      {/* Editorial Category Grid */}
+      <CollectionsGrid />
 
       <footer className="py-24 border-t border-border bg-background text-center flex flex-col items-center justify-center">
         <h2 className="text-4xl md:text-6xl font-light mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>

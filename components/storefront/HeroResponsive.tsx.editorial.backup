@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
-export default function HeroResponsive({ heroImage = "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2942&auto=format&fit=crop" }: { heroImage?: string }) {
+export default function HeroResponsive() {
   const containerRef = useRef<HTMLDivElement>(null);
   const title1Ref = useRef<HTMLDivElement>(null);
   const title2Ref = useRef<HTMLDivElement>(null);
@@ -71,30 +71,30 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
       {/* Editorial Typography Reveal */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full px-2 md:px-6 flex flex-col items-center pointer-events-none mix-blend-difference text-white">
         
-        <div className="reveal-mask md:-ml-48 -ml-12">
+        <div className="reveal-mask md:-ml-48 -ml-16">
           <h1 
             ref={title1Ref} 
-            className="text-[14vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+            className="text-[16vw] md:text-[9vw] font-light leading-[0.8] tracking-tighter"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             THE ART
           </h1>
         </div>
 
-        <div className="reveal-mask -mt-1 md:-mt-6 z-10">
+        <div className="reveal-mask -mt-2 md:-mt-6 z-10 text-outline">
           <h1 
             ref={title2Ref} 
-            className="text-[12vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter text-outline mix-blend-difference whitespace-nowrap" 
+            className="text-[16vw] md:text-[9vw] font-light leading-[0.8] tracking-tighter mix-blend-difference" 
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             OF MODERN
           </h1>
         </div>
 
-        <div className="reveal-mask md:ml-48 ml-16 -mt-1 md:-mt-6 z-10">
+        <div className="reveal-mask md:ml-48 ml-16 -mt-2 md:-mt-6 z-10">
           <h1 
             ref={title3Ref} 
-            className="text-[14vw] md:text-[9vw] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+            className="text-[16vw] md:text-[9vw] font-light leading-[0.8] tracking-tighter"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             SLEEP.
@@ -108,7 +108,7 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
         <div ref={imgWrapperRef} className="relative w-full h-[85vh] md:w-[80%] md:h-[90%] overflow-hidden rounded-2xl md:rounded-none mt-10 md:mt-0 shadow-2xl">
           <img 
             ref={imgRef}
-            src={heroImage} 
+            src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2942&auto=format&fit=crop" 
             alt="Premium Cottons Bedsheets"
             className="absolute top-0 left-0 w-full h-[120%] object-cover object-[center_30%] origin-top brightness-[0.85]"
           />
