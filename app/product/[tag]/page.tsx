@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle } from 'lucide-react';
+import AddToCartButton from '@/components/storefront/AddToCartButton';
 import ProductGallery from './ProductGallery';
 import type { Metadata } from 'next';
 
@@ -58,8 +59,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
     .neq('id', product.id)
     .limit(3);
 
-  const whatsappText = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
-  const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappText)}`;
+  
 
   return (
     <main className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
@@ -104,15 +104,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
           </div>
 
           <div className="mt-16 hidden md:block">
-            <a 
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-between bg-foreground text-background px-8 py-5 hover:bg-transparent hover:text-foreground border border-transparent hover:border-foreground transition-all w-full"
-            >
-              <span className="font-semibold text-xs tracking-[0.2em] uppercase">Inquire & Order via WhatsApp</span>
-              <MessageCircle className="w-5 h-5 transition-transform group-hover:scale-110" />
-            </a>
+            <AddToCartButton product={{ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url }} />
           </div>
         </div>
 
@@ -163,15 +155,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
 
       {/* Mobile Fixed Order Button */}
       <div className="fixed bottom-0 left-0 w-full p-4 bg-background/90 backdrop-blur-md border-t border-border md:hidden z-50">
-        <a 
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 bg-foreground text-background px-6 py-4 w-full"
-        >
-          <MessageCircle className="w-4 h-4" />
-          <span className="font-medium text-xs tracking-[0.15em] uppercase">Inquire / Order via WhatsApp</span>
-        </a>
+        <AddToCartButton className="justify-center gap-3 py-4" product={{ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url }} />
       </div>
     </main>
   );

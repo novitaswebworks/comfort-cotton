@@ -17,7 +17,7 @@ export default function DayNightToggle() {
   return (
     <button
       onClick={() => setIsDark(!isDark)}
-      className="fixed bottom-6 right-6 z-[9000] p-4 rounded-full bg-foreground text-background shadow-lg hover:scale-105 transition-transform"
+      className="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-[9000] p-4 rounded-full bg-foreground text-background shadow-lg hover:scale-105 transition-transform"
       aria-label="Toggle theme"
     >
       {isDark ? <Sun size={20} /> : <Moon size={20} />}

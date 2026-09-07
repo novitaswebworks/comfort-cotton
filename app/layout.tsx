@@ -5,6 +5,8 @@ import CustomCursor from "@/components/storefront/CustomCursor";
 import Loader from "@/components/storefront/Loader";
 import Navbar from "@/components/storefront/Navbar";
 import DayNightToggle from "@/components/storefront/DayNightToggle";
+import CartDrawer from "@/components/storefront/CartDrawer";
+import FloatingWhatsApp from "@/components/storefront/FloatingWhatsApp";
 import SmoothScroll from "@/components/storefront/SmoothScroll";
 import { ClerkProvider } from '@clerk/nextjs'
 
@@ -32,6 +34,8 @@ export default function RootLayout({
             {children}
           </SmoothScroll>
           <DayNightToggle />
+          <CartDrawer />
+          <FloatingWhatsApp />
         </body>
       </html>
     </ClerkProvider>

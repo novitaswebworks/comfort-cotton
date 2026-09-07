@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, ArrowUpRight } from "lucide-react";
+import { MessageCircle, ArrowUpRight, ShoppingBag } from "lucide-react";
+import { useCartStore } from "@/lib/store/useCartStore";
 import Link from "next/link";
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -22,6 +24,7 @@ export interface Product {
 }
 
 export default function ProductLookbook({ products, chapter = 1, title = "The Collection" }: { products: Product[]; chapter?: number; title?: string }) {
+  const { addItem } = useCartStore();
   const lookbookRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
@@ -74,12 +77,7 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
     return () => ctx.revert();
   }, [products]);
 
-  const handleOrder = (product: Product, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const text = `Hello Comfort Cottons! I want to order the ${product.name} bedsheet (Tag: #${product.tag}) priced at ₹${product.price}.`;
-    window.open(`https://wa.me/1234567890?text=${encodeURIComponent(text)}`, '_blank');
-  };
+  
 
   if (!products || products.length === 0) {
     return (
@@ -154,11 +152,15 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
                   ₹{product.price}
                 </p>
                 <button 
-                  onClick={(e) => handleOrder(product, e)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addItem({ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url });
+                  }}
                   className="group/btn flex items-center gap-3 bg-foreground text-background px-8 py-4 hover:bg-transparent hover:text-foreground border border-transparent hover:border-foreground transition-all pointer-events-auto"
                 >
-                  <MessageCircle className="w-4 h-4 transition-transform group-hover/btn:scale-110" />
-                  <span className="font-medium text-xs tracking-[0.15em] uppercase">Inquire / Order</span>
+                  <ShoppingBag className="w-4 h-4 transition-transform group-hover/btn:scale-110" />
+                  <span className="font-medium text-xs tracking-[0.15em] uppercase">Add to Bag</span>
                 </button>
               </div>
             </Link>
