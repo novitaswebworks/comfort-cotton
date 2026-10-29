@@ -7,13 +7,13 @@ import { ORDERS_PAGE_SIZE, ORDER_STATUSES, listOrders, orderCounts } from "@/lib
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Orders" };
 
-export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string; page?: string }> }) {
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; pay?: string; q?: string; page?: string }> }) {
   const sp = await searchParams;
   const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
-  const [{ orders, total, error }, counts] = await Promise.all([listOrders({ status: sp.status, q: sp.q, page }), orderCounts()]);
+  const [{ orders, total, error }, counts] = await Promise.all([listOrders({ status: sp.status, payment: sp.pay, q: sp.q, page }), orderCounts()]);
   const pages = Math.max(1, Math.ceil(total / ORDERS_PAGE_SIZE));
   const href = (extra: Record<string, string>) => {
-    const params = new URLSearchParams({ ...(sp.status ? { status: sp.status } : {}), ...(sp.q ? { q: sp.q } : {}), ...extra });
+    const params = new URLSearchParams({ ...(sp.status ? { status: sp.status } : {}), ...(sp.pay ? { pay: sp.pay } : {}), ...(sp.q ? { q: sp.q } : {}), ...extra });
     return `/admin/orders?${params}`;
   };
 
@@ -22,7 +22,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
       <PageHeader title="Orders" description="Checkouts started from the store's WhatsApp button. Confirm and track them here." />
 
       <div className="mb-4 flex flex-wrap gap-2" aria-label="Filter by status">
-        <Link href="/admin/orders" className={sp.status ? btn.secondary : btn.primary}>All</Link>
+        <Link href="/admin/orders" className={sp.status || sp.pay ? btn.secondary : btn.primary}>All</Link>
+        <Link href="/admin/orders?pay=unpaid" className={sp.pay === "unpaid" ? btn.primary : btn.secondary}>Awaiting payment</Link>
         {ORDER_STATUSES.map((s) => (
           <Link key={s} href={`/admin/orders?status=${s}`} className={sp.status === s ? btn.primary : btn.secondary}>
             {s} <span className="opacity-60">{counts[s] ?? 0}</span>

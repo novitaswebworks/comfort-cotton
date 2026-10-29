@@ -70,7 +70,7 @@ export default async function SettingsPage() {
         </Panel>
 
         <Panel title="Store settings" className="lg:col-span-2">
-          <SettingsForm whatsappNumber={settings.whatsapp_number} />
+          <SettingsForm settings={settings} />
         </Panel>
 
         <Panel title="Data tools" className="lg:col-span-2">

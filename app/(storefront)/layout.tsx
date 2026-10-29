@@ -8,14 +8,15 @@ import { getSettings } from "@/lib/settings";
 
 // Storefront-only chrome. Admin and auth pages live outside this group and render clean.
 export default async function StorefrontLayout({ children }: { children: React.ReactNode }) {
-  const { whatsapp_number } = await getSettings();
+  const settings = await getSettings();
+  const { whatsapp_number } = settings;
   return (
     <>
       <Loader />
       <CustomCursor />
       <Navbar />
       <SmoothScroll>{children}</SmoothScroll>
-      <CartDrawer whatsappNumber={whatsapp_number} />
+      <CartDrawer whatsappNumber={whatsapp_number} payment={{ upiId: settings.upi_id, upiName: settings.upi_name, codAdvancePercent: settings.cod_advance_percent }} />
       <FloatingWhatsApp whatsappNumber={whatsapp_number} />
     </>
   );

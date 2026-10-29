@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { ORDER_STATUSES } from "@/lib/admin/orders";
 import { logAudit } from "@/lib/admin/audit";
+import { PAYMENT_STATUSES } from "@/lib/payment";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -36,6 +37,12 @@ async function update(id: string, patch: Record<string, unknown>, summary: (n: n
 export async function setOrderStatus(id: string, status: string): Promise<ActionResult> {
   if (!(ORDER_STATUSES as readonly string[]).includes(status)) return { success: false, error: "Unknown status" };
   return update(id, { status }, (n) => `Order #${n} set to ${status}`);
+}
+
+export async function setPaymentStatus(id: string, paymentStatus: string): Promise<ActionResult> {
+  if (!(PAYMENT_STATUSES as readonly string[]).includes(paymentStatus)) return { success: false, error: "Unknown payment status" };
+  const paid = paymentStatus === "Paid" || paymentStatus === "Advance paid";
+  return update(id, { payment_status: paymentStatus, paid_at: paid ? new Date().toISOString() : null }, (n) => `Order #${n} payment marked ${paymentStatus}`);
 }
 
 export async function saveOrderNote(id: string, note: string): Promise<ActionResult> {

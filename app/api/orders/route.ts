@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { effectivePrice } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
+import { PAYMENT_METHODS, PHONE_RE, PINCODE_RE, amountDueNow, type PaymentMethod } from "@/lib/payment";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -31,9 +33,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid items" }, { status: 400 });
   }
 
-  const phone = clean(body?.phone, 20).replace(/[^\d+]/g, "");
-  if (phone && !/^\+?\d{7,15}$/.test(phone)) return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+  const fail = (error: string) => NextResponse.json({ error }, { status: 400 });
   const name = clean(body?.name, 80);
+  const phone = clean(body?.phone, 20).replace(/[^\d+]/g, "");
+  const address = clean(body?.address, 300);
+  const city = clean(body?.city, 80);
+  const pincode = clean(body?.pincode, 6);
+  const note = clean(body?.note, 300);
+  const method = body?.paymentMethod as PaymentMethod;
+
+  if (name.length < 2) return fail("Please enter your name");
+  if (!PHONE_RE.test(phone)) return fail("Please enter a valid phone number");
+  if (address.length < 6) return fail("Please enter your full delivery address");
+  if (city.length < 2) return fail("Please enter your city");
+  if (!PINCODE_RE.test(pincode)) return fail("Please enter a valid 6-digit pincode");
+  if (!(PAYMENT_METHODS as readonly string[]).includes(method)) return fail("Please choose a payment method");
 
   try {
     const db = getSupabaseAdmin();
@@ -57,14 +71,23 @@ export async function POST(req: Request) {
       items.push({ id: p.id, tag: p.tag, name: p.name, unit_price: unit, quantity: l.quantity });
     }
 
+    const settings = await getSettings();
+    const dueNow = amountDueNow(method, subtotal, settings.cod_advance_percent);
+
     const { data: order, error: insertError } = await db
       .from("orders")
-      .insert([{ items, subtotal, customer_name: name || null, customer_phone: phone || null }])
+      .insert([
+        {
+          items, subtotal, amount_due_now: dueNow, payment_method: method,
+          customer_name: name, customer_phone: phone, customer_address: address,
+          customer_city: city, customer_pincode: pincode, order_note: note || null,
+        },
+      ])
       .select("order_number")
       .single();
     if (insertError) throw new Error(insertError.message);
 
-    return NextResponse.json({ orderNumber: order.order_number, subtotal });
+    return NextResponse.json({ orderNumber: order.order_number, subtotal, amountDueNow: dueNow, paymentMethod: method });
   } catch (err) {
     console.error("Order logging failed:", err instanceof Error ? err.message : err);
     return NextResponse.json({ error: "Could not record the order" }, { status: 503 });
