@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { validateProduct } from "@/lib/product-schema";
+import { logAudit } from "@/lib/admin/audit";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -33,6 +34,7 @@ export async function createProductDb(productData: unknown): Promise<ActionResul
 
     const { error } = await getSupabaseAdmin().from("products").insert([parsed.value]);
     if (error) return { success: false, error: friendlyDbError(error.message) };
+    await logAudit({ action: "create", entity: "product", entityId: parsed.value.tag, summary: `Created product ${parsed.value.tag} (${parsed.value.name})` });
     revalidateStorefront();
     return { success: true };
   } catch (err) {
@@ -48,6 +50,8 @@ export async function updateProductDb(id: string, updates: unknown): Promise<Act
 
     const { error } = await getSupabaseAdmin().from("products").update(parsed.value).eq("id", id);
     if (error) return { success: false, error: friendlyDbError(error.message) };
+    const fields = Object.keys(parsed.value).filter((k) => !k.endsWith("_url")).join(", ");
+    await logAudit({ action: "update", entity: "product", entityId: id, summary: `Edited product ${parsed.value.tag ?? id}: ${fields}${Object.keys(parsed.value).some((k) => k.endsWith("_url")) ? ", images" : ""}` });
     revalidateStorefront();
     return { success: true };
   } catch (err) {
@@ -58,11 +62,14 @@ export async function updateProductDb(id: string, updates: unknown): Promise<Act
 export async function deleteProduct(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const { error } = await getSupabaseAdmin().from("products").delete().eq("id", id);
+    const db = getSupabaseAdmin();
+    const { data: before } = await db.from("products").select("tag,name").eq("id", id).maybeSingle();
+    const { error } = await db.from("products").delete().eq("id", id);
     if (error) {
       console.error("Failed to delete product:", error);
       return { success: false, error: error.message };
     }
+    await logAudit({ action: "delete", entity: "product", entityId: id, summary: `Deleted product ${before ? `${before.tag} (${before.name})` : id}` });
     revalidateStorefront();
     return { success: true };
   } catch (err) {
@@ -95,6 +102,7 @@ export async function bulkSetStatus(ids: string[], status: "Published" | "Draft"
     if (!isIdList(ids) || (status !== "Published" && status !== "Draft")) return { success: false, error: "Invalid request" };
     const { error } = await getSupabaseAdmin().from("products").update({ status }).in("id", ids);
     if (error) return { success: false, error: error.message };
+    await logAudit({ action: "bulk-status", entity: "product", summary: `Set ${ids.length} product(s) to ${status}` });
     revalidateStorefront();
     return { success: true };
   } catch (err) {
@@ -108,6 +116,7 @@ export async function bulkDelete(ids: string[]): Promise<ActionResult> {
     if (!isIdList(ids)) return { success: false, error: "Invalid request" };
     const { error } = await getSupabaseAdmin().from("products").delete().in("id", ids);
     if (error) return { success: false, error: error.message };
+    await logAudit({ action: "bulk-delete", entity: "product", summary: `Deleted ${ids.length} product(s)` });
     revalidateStorefront();
     return { success: true };
   } catch (err) {
@@ -133,6 +142,7 @@ export async function duplicateProduct(id: string): Promise<ActionResult & { id?
         .select("id")
         .single();
       if (!insertError) {
+        await logAudit({ action: "duplicate", entity: "product", entityId: created.id, summary: `Duplicated ${tag} as ${tag}${suffix}` });
         revalidateStorefront();
         return { success: true, id: created.id };
       }
