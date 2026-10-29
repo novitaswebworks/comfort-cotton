@@ -4,6 +4,7 @@ import ProductLookbook from "@/components/storefront/ProductLookbook";
 import CollectionsGrid from "@/components/storefront/CollectionsGrid";
 import { getPublishedProducts } from "@/lib/products";
 import { CATEGORY_SLUGS } from "@/lib/site";
+import { POLICIES, POLICY_SLUGS } from "@/lib/policies";
 
 // Statically cached; admin actions call revalidatePath so edits show up immediately.
 export const revalidate = 60;
@@ -48,8 +49,15 @@ export default async function Home() {
         <p className="text-xs text-muted-foreground tracking-wide mb-10 max-w-sm">
           Orders and enquiries are handled personally on WhatsApp. Use the chat button to reach us.
         </p>
+        <nav aria-label="Policies" className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+          {POLICY_SLUGS.map((slug) => (
+            <Link key={slug} href={`/policies/${slug}`} className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
+              {POLICIES[slug].title}
+            </Link>
+          ))}
+        </nav>
         <p className="text-sm text-muted-foreground uppercase tracking-widest">
-          © {new Date().getFullYear()} The Art of Sleep
+          ©{new Date().getFullYear()} The Art of Sleep
         </p>
         <Link href="/admin" className="mt-6 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70 hover:text-foreground transition-colors">
           Admin
