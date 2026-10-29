@@ -153,7 +153,7 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    addItem({ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url });
+                    addItem({ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, type: product.type, image_url: product.image_url });
                   }}
                   className="group/btn flex items-center gap-3 bg-foreground text-background px-8 py-4 hover:bg-transparent hover:text-foreground border border-transparent hover:border-foreground transition-all pointer-events-auto disabled:opacity-50 disabled:pointer-events-none"
                 >

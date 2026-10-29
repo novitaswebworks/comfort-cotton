@@ -6,6 +6,8 @@ export interface CartItem {
   name: string;
   price: number;
   tag: string;
+  /** Size / type line, e.g. "Double • 90×100 inches". Absent on carts saved before it existed. */
+  type?: string;
   image_url: string;
   quantity: number;
 }
@@ -17,7 +19,7 @@ interface CartStore {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  syncWithCatalogue: (latest: Pick<CartItem, 'id' | 'name' | 'price' | 'image_url'>[]) => void;
+  syncWithCatalogue: (latest: Pick<CartItem, 'id' | 'name' | 'price' | 'image_url' | 'type'>[]) => void;
   toggleCart: () => void;
   setIsOpen: (isOpen: boolean) => void;
 }

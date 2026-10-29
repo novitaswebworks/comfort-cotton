@@ -91,7 +91,7 @@ export function getRelatedProducts(product: Pick<Product, "id" | "category">, li
   );
 }
 
-type CartProduct = Pick<Product, "id" | "name" | "price" | "sale_price" | "tag" | "image_url">;
+type CartProduct = Pick<Product, "id" | "name" | "type" | "price" | "sale_price" | "tag" | "image_url">;
 
 /** Published, in-stock products only: anything else should drop out of a customer's cart. */
 export function getPublishedProductsByIds(ids: string[]) {
@@ -99,7 +99,7 @@ export function getPublishedProductsByIds(ids: string[]) {
     () =>
       publicClient()
         .from("products")
-        .select("id,name,price,sale_price,tag,image_url")
+        .select("id,name,type,price,sale_price,tag,image_url")
         .in("id", ids)
         .eq("status", "Published")
         .eq("in_stock", true) as PromiseLike<{ data: CartProduct[] | null; error: { message: string } | null }>,

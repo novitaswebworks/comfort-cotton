@@ -2,6 +2,7 @@
 
 import { MessageCircle } from "lucide-react";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
+import { buildChatMessage } from "@/lib/order-message";
 import { usePathname } from "next/navigation";
 import { useMounted } from "@/lib/use-mounted";
 
@@ -14,7 +15,7 @@ export default function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber?: 
   if (!mounted) return null;
 
   const handleChat = () => {
-    window.open(generateWhatsAppLink("Hello! I have a question about your products.", whatsappNumber), "_blank");
+    window.open(generateWhatsAppLink(buildChatMessage(pathname, window.location.origin), whatsappNumber), "_blank");
   };
 
   return (

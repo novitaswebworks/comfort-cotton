@@ -115,7 +115,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
           </div>
 
           <div className="mt-16 hidden md:block">
-            <AddToCartButton product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url }} inStock={product.in_stock} />
+            <AddToCartButton product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, type: product.type, image_url: product.image_url }} inStock={product.in_stock} />
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
 
       {/* Mobile Fixed Order Button */}
       <div className="fixed bottom-0 left-0 w-full p-4 bg-background/90 backdrop-blur-md border-t border-border md:hidden z-50">
-        <AddToCartButton className="justify-center gap-3 py-4" product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url }} inStock={product.in_stock} />
+        <AddToCartButton className="justify-center gap-3 py-4" product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, type: product.type, image_url: product.image_url }} inStock={product.in_stock} />
       </div>
     </main>
   );
