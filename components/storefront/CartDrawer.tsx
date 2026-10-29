@@ -64,6 +64,8 @@ export default function CartDrawer({ whatsappNumber, payment }: { whatsappNumber
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            // Lenis (smooth scroll) would otherwise hijack wheel events and scroll the page behind the drawer.
+            data-lenis-prevent
             className="fixed top-0 right-0 h-full w-full max-w-md bg-background border-l border-border z-[10000] flex flex-col shadow-2xl"
           >
             <div className="flex items-center justify-between p-6 border-b border-border">
@@ -87,7 +89,7 @@ export default function CartDrawer({ whatsappNumber, payment }: { whatsappNumber
               />
             ) : (
             <>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-6">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-70">
                   <ShoppingBag className="w-12 h-12 mb-4 opacity-20" />
