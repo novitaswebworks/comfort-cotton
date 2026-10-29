@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getPublishedProductsByIds } from "@/lib/products";
+import { effectivePrice } from "@/lib/pricing";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Returns current price/availability for cart items so stale browser-stored carts self-correct.
+// Returns current (sale-aware) price and availability for cart items so stale browser-stored carts self-correct.
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const ids: unknown = body?.ids;
@@ -11,6 +12,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid ids" }, { status: 400 });
   }
   const { data, error } = await getPublishedProductsByIds(ids as string[]);
-  if (error) return NextResponse.json({ error: "Catalogue unavailable" }, { status: 503 });
-  return NextResponse.json({ items: data });
+  if (error || !data) return NextResponse.json({ error: "Catalogue unavailable" }, { status: 503 });
+  return NextResponse.json({
+    items: data.map(({ sale_price, ...p }) => ({ ...p, price: effectivePrice({ price: p.price, sale_price }) })),
+  });
 }

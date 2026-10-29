@@ -50,6 +50,7 @@ export function computeStats(products: Product[]) {
     { id: "no-desc", label: "Missing description", products: products.filter((p) => !p.description?.trim()) },
     { id: "no-zoom", label: "Missing texture image", products: products.filter((p) => !p.zoom_image_url) },
     { id: "stale-draft", label: "Drafts older than 14 days", products: drafts.filter((p) => Date.now() - new Date(p.created_at).getTime() > 14 * DAY) },
+    { id: "out-of-stock", label: "Marked out of stock", products: published.filter((p) => !p.in_stock) },
     { id: "unknown-cat", label: "Unrecognised category", products: unknown },
   ].filter((i) => i.products.length > 0);
 

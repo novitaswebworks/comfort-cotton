@@ -11,11 +11,20 @@ interface AddToCartButtonProps {
     tag: string;
     image_url: string;
   };
+  inStock?: boolean;
   className?: string;
 }
 
-export default function AddToCartButton({ product, className = "" }: AddToCartButtonProps) {
+export default function AddToCartButton({ product, inStock = true, className = "" }: AddToCartButtonProps) {
   const { addItem } = useCartStore();
+
+  if (!inStock) {
+    return (
+      <button disabled aria-disabled="true" className={`flex items-center justify-center border border-border text-muted-foreground px-8 py-5 w-full cursor-not-allowed ${className}`}>
+        <span className="font-semibold text-xs tracking-[0.2em] uppercase">Sold out</span>
+      </button>
+    );
+  }
 
   return (
     <button

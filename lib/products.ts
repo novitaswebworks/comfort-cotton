@@ -13,6 +13,10 @@ export interface Product {
   image_url: string;
   zoom_image_url: string;
   pillow_image_url: string;
+  in_stock: boolean;
+  featured: boolean;
+  sort_order: number;
+  sale_price: number | null;
   created_at: string;
 }
 
@@ -40,7 +44,7 @@ async function run<T>(query: () => PromiseLike<{ data: T | null; error: { messag
 
 export function getPublishedProducts(limit?: number) {
   return run<Product[]>(() => {
-    const q = publicClient().from("products").select("*").eq("status", "Published").order("created_at", { ascending: true });
+    const q = publicClient().from("products").select("*").eq("status", "Published").order("featured", { ascending: false }).order("sort_order", { ascending: true }).order("created_at", { ascending: true });
     return (limit ? q.limit(limit) : q) as PromiseLike<{ data: Product[] | null; error: { message: string } | null }>;
   });
 }
@@ -53,6 +57,8 @@ export function getProductsByCategory(category: string) {
         .select("*")
         .eq("category", category)
         .eq("status", "Published")
+        .order("featured", { ascending: false })
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false }) as PromiseLike<{ data: Product[] | null; error: { message: string } | null }>,
   );
 }
@@ -85,13 +91,17 @@ export function getRelatedProducts(product: Pick<Product, "id" | "category">, li
   );
 }
 
+type CartProduct = Pick<Product, "id" | "name" | "price" | "sale_price" | "tag" | "image_url">;
+
+/** Published, in-stock products only: anything else should drop out of a customer's cart. */
 export function getPublishedProductsByIds(ids: string[]) {
-  return run<Pick<Product, "id" | "name" | "price" | "tag" | "image_url">[]>(
+  return run<CartProduct[]>(
     () =>
       publicClient()
         .from("products")
-        .select("id,name,price,tag,image_url")
+        .select("id,name,price,sale_price,tag,image_url")
         .in("id", ids)
-        .eq("status", "Published") as PromiseLike<{ data: Pick<Product, "id" | "name" | "price" | "tag" | "image_url">[] | null; error: { message: string } | null }>,
+        .eq("status", "Published")
+        .eq("in_stock", true) as PromiseLike<{ data: CartProduct[] | null; error: { message: string } | null }>,
   );
 }

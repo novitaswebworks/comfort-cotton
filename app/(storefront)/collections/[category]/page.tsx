@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { effectivePrice, formatRupees, onSale } from "@/lib/pricing";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
@@ -72,7 +73,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                     )}
                   </div>
                   <h2 className="text-xl font-light tracking-wide">{product.name}</h2>
-                  <p className="text-sm text-muted-foreground mt-2 font-medium tracking-wider">₹{product.price}</p>
+                  <p className="text-sm text-muted-foreground mt-2 font-medium tracking-wider">{product.in_stock ? formatRupees(effectivePrice(product)) : "Sold out"}{product.in_stock && onSale(product) && <span className="ml-2 line-through opacity-60">{formatRupees(Number(product.price))}</span>}</p>
                   <p className="text-xs text-muted-foreground mt-1 opacity-70">{product.material}</p>
                 </Link>
               );

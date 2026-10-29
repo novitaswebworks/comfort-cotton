@@ -12,6 +12,10 @@ export interface ProductInput {
   image_url: string;
   zoom_image_url: string;
   pillow_image_url: string;
+  in_stock: boolean;
+  featured: boolean;
+  sort_order: number;
+  sale_price: number | null;
 }
 
 export type ValidationResult<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -43,7 +47,7 @@ export function validateProduct(input: unknown, partial: boolean): ValidationRes
 
   if (need("tag")) {
     const tag = str(raw.tag).toUpperCase();
-    if (!/^[A-Z0-9][A-Z0-9_-]{1,39}$/.test(tag)) return { ok: false, error: "Tag must be 2-40 characters: letters, numbers, - or _" };
+    if (!/^[A-Z0-9][A-Z0-9._-]{1,39}$/.test(tag)) return { ok: false, error: "Tag must be 2-40 characters: letters, numbers, ., - or _" };
     out.tag = tag;
   }
 
@@ -63,6 +67,32 @@ export function validateProduct(input: unknown, partial: boolean): ValidationRes
     const d = str(raw.description);
     if (d.length > 2000) return { ok: false, error: "Description is too long (max 2000 characters)" };
     out.description = d || null;
+  }
+
+  for (const key of ["in_stock", "featured"] as const) {
+    if (!has(key)) continue;
+    if (typeof raw[key] !== "boolean") return { ok: false, error: `${key} must be true or false` };
+    out[key] = raw[key] as boolean;
+  }
+
+  if (has("sort_order")) {
+    const n = Number(raw.sort_order);
+    if (!Number.isInteger(n) || n < -9999 || n > 9999) return { ok: false, error: "Display order must be a whole number between -9999 and 9999" };
+    out.sort_order = n;
+  }
+
+  if (has("sale_price")) {
+    const blank = raw.sale_price === null || raw.sale_price === "" || Number.isNaN(raw.sale_price);
+    if (blank) out.sale_price = null;
+    else {
+      const sale = typeof raw.sale_price === "number" ? raw.sale_price : parseFloat(String(raw.sale_price));
+      if (!Number.isFinite(sale) || sale < 0) return { ok: false, error: "Sale price must be a positive number" };
+      out.sale_price = Math.round(sale * 100) / 100;
+    }
+  }
+  // Only comparable when both are in this payload; the database check enforces it otherwise.
+  if (out.sale_price != null && out.price !== undefined && out.sale_price >= out.price) {
+    return { ok: false, error: "Sale price must be lower than the regular price" };
   }
 
   for (const key of ["image_url", "zoom_image_url", "pillow_image_url"] as const) {

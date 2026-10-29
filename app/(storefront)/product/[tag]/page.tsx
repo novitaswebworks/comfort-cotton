@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AddToCartButton from '@/components/storefront/AddToCartButton';
 import ProductGallery from './ProductGallery';
+import { effectivePrice, formatRupees, onSale } from '@/lib/pricing';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
     return { title: 'Product not found', robots: { index: false } };
   }
 
-  const description = product.description || `${product.material}. Available now for ₹${product.price}.`;
+  const description = product.description || `${product.material}. ${product.in_stock ? 'Available now' : 'Currently sold out'} for ${formatRupees(effectivePrice(product))}.`;
   return {
     title: product.name,
     description,
@@ -60,8 +61,8 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
     offers: {
       '@type': 'Offer',
       priceCurrency: 'INR',
-      price: product.price,
-      availability: 'https://schema.org/InStock',
+      price: effectivePrice(product),
+      availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: `${SITE_URL}/product/${product.tag}`,
     },
   };
@@ -92,8 +93,9 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
             
             <div className="flex items-baseline gap-2 mb-12">
               <p className="text-3xl font-light" style={{ fontFamily: "'Playfair Display', serif" }}>
-                ₹{product.price}
+                {formatRupees(effectivePrice(product))}
               </p>
+              {onSale(product) && <p className="text-lg text-muted-foreground line-through">{formatRupees(Number(product.price))}</p>}
               <span className="text-xs text-muted-foreground uppercase tracking-widest">Incl. of all taxes</span>
             </div>
 
@@ -113,7 +115,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
           </div>
 
           <div className="mt-16 hidden md:block">
-            <AddToCartButton product={{ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url }} />
+            <AddToCartButton product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url }} inStock={product.in_stock} />
           </div>
         </div>
 
@@ -152,7 +154,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
                   </div>
                   <h3 className="font-light text-2xl tracking-wide mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>{rel.name}</h3>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">₹{rel.price}</p>
+                    <p className="text-sm font-medium">{rel.in_stock ? formatRupees(effectivePrice(rel)) : 'Sold out'}</p>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{rel.type}</p>
                   </div>
                 </Link>
@@ -164,7 +166,7 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
 
       {/* Mobile Fixed Order Button */}
       <div className="fixed bottom-0 left-0 w-full p-4 bg-background/90 backdrop-blur-md border-t border-border md:hidden z-50">
-        <AddToCartButton className="justify-center gap-3 py-4" product={{ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url }} />
+        <AddToCartButton className="justify-center gap-3 py-4" product={{ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url }} inStock={product.in_stock} />
       </div>
     </main>
   );

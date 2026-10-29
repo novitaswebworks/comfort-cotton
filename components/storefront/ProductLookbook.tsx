@@ -6,6 +6,7 @@ import { useCartStore } from "@/lib/store/useCartStore";
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
+import { effectivePrice, formatRupees } from "@/lib/pricing";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -145,18 +146,19 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
               <div className={`absolute inset-0 bg-background/20 backdrop-blur-sm flex flex-col items-center justify-center text-foreground transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)] ${activeProduct === product.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <p className="text-xs tracking-[0.2em] uppercase mb-4 font-medium">{product.material}</p>
                 <p className="text-5xl font-light mb-12" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  ₹{product.price}
+                  {formatRupees(effectivePrice(product))}
                 </p>
                 <button 
+                  disabled={!product.in_stock}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    addItem({ id: product.id, name: product.name, price: product.price, tag: product.tag, image_url: product.image_url });
+                    addItem({ id: product.id, name: product.name, price: effectivePrice(product), tag: product.tag, image_url: product.image_url });
                   }}
-                  className="group/btn flex items-center gap-3 bg-foreground text-background px-8 py-4 hover:bg-transparent hover:text-foreground border border-transparent hover:border-foreground transition-all pointer-events-auto"
+                  className="group/btn flex items-center gap-3 bg-foreground text-background px-8 py-4 hover:bg-transparent hover:text-foreground border border-transparent hover:border-foreground transition-all pointer-events-auto disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <ShoppingBag className="w-4 h-4 transition-transform group-hover/btn:scale-110" />
-                  <span className="font-medium text-xs tracking-[0.15em] uppercase">Add to Bag</span>
+                  <span className="font-medium text-xs tracking-[0.15em] uppercase">{product.in_stock ? "Add to Bag" : "Sold out"}</span>
                 </button>
               </div>
             </Link>

@@ -111,6 +111,10 @@ export default function ProductForm({ product, defaultCategory }: { product?: Pr
     material: product?.material ?? "",
     tag: product?.tag ?? "",
     description: product?.description ?? "",
+    sale_price: product?.sale_price != null ? String(product.sale_price) : "",
+    sort_order: String(product?.sort_order ?? 0),
+    in_stock: product?.in_stock ?? true,
+    featured: product?.featured ?? false,
   });
   const [files, setFiles] = useState<Record<ImageKey, File | null>>({ image_url: null, zoom_image_url: null, pillow_image_url: null });
   const [removed, setRemoved] = useState<Record<ImageKey, boolean>>({ image_url: false, zoom_image_url: false, pillow_image_url: false });
@@ -143,7 +147,7 @@ export default function ProductForm({ product, defaultCategory }: { product?: Pr
         else if (editing && removed[k] && k !== "image_url") images[k] = "";
       });
 
-      const payload = { ...v, price: parseFloat(v.price), ...(editing ? images : { image_url: "", zoom_image_url: "", pillow_image_url: "", ...images }) };
+      const payload = { ...v, price: parseFloat(v.price), sale_price: v.sale_price.trim() === "" ? null : parseFloat(v.sale_price), sort_order: parseInt(v.sort_order || "0", 10), ...(editing ? images : { image_url: "", zoom_image_url: "", pillow_image_url: "", ...images }) };
       const res = editing ? await updateProductDb(product.id, payload) : await createProductDb(payload);
       if (!res.success) throw new Error(res.error);
       setDirty(false);
@@ -206,6 +210,28 @@ export default function ProductForm({ product, defaultCategory }: { product?: Pr
                 <input id="price" required type="number" inputMode="decimal" min="0" step="0.01" value={v.price} onChange={(e) => set("price", e.target.value)} placeholder="2499" className={field} />
               </div>
             </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="sale_price" className={label}>Sale price (₹)</label>
+                <input id="sale_price" type="number" inputMode="decimal" min="0" step="0.01" value={v.sale_price} onChange={(e) => set("sale_price", e.target.value)} placeholder="Leave empty for no sale" className={field} />
+                <p className="mt-1.5 text-xs text-muted-foreground">Must be lower than the regular price. Customers pay this price.</p>
+              </div>
+              <div>
+                <label htmlFor="sort_order" className={label}>Display order</label>
+                <input id="sort_order" type="number" step="1" value={v.sort_order} onChange={(e) => set("sort_order", e.target.value)} className={field} />
+                <p className="mt-1.5 text-xs text-muted-foreground">Lower numbers come first. Featured products always lead.</p>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex items-center gap-3 rounded-lg border border-input p-3 text-sm">
+                <input type="checkbox" checked={v.in_stock} onChange={(e) => set("in_stock", e.target.checked)} className="h-4 w-4" />
+                <span><span className="font-medium">In stock</span><span className="block text-xs text-muted-foreground">Untick to show &ldquo;Sold out&rdquo;.</span></span>
+              </label>
+              <label className="flex items-center gap-3 rounded-lg border border-input p-3 text-sm">
+                <input type="checkbox" checked={v.featured} onChange={(e) => set("featured", e.target.checked)} className="h-4 w-4" />
+                <span><span className="font-medium">Featured</span><span className="block text-xs text-muted-foreground">Shown first on the homepage.</span></span>
+              </label>
+            </div>
             <div>
               <label htmlFor="material" className={label}>Material &amp; quality <span className="text-destructive">*</span></label>
               <input id="material" required value={v.material} onChange={(e) => set("material", e.target.value)} placeholder="e.g. 100% Egyptian Cotton • 400 TC" className={field} />
@@ -218,7 +244,7 @@ export default function ProductForm({ product, defaultCategory }: { product?: Pr
                   <Sparkles className="h-4 w-4" /> <span className="hidden sm:inline">Suggest</span>
                 </button>
               </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">Unique reference used in the product link and WhatsApp orders. Letters, numbers, - and _.</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">Unique reference used in the product link and WhatsApp orders. Letters, numbers, ., - and _.</p>
             </div>
             <div>
               <label htmlFor="description" className={label}>Description</label>
@@ -256,7 +282,7 @@ export default function ProductForm({ product, defaultCategory }: { product?: Pr
               </div>
               <div className="p-4">
                 <h3 className="text-xl font-light" style={{ fontFamily: "'Playfair Display', serif" }}>{v.name || "Product name"}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{v.price ? `₹${v.price}` : "₹0"}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{v.sale_price ? <><span>₹{v.sale_price}</span> <span className="line-through opacity-60">₹{v.price}</span></> : v.price ? `₹${v.price}` : "₹0"}{!v.in_stock && " · Sold out"}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{v.material || "Material & quality"}</p>
               </div>
             </div>
