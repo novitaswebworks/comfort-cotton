@@ -4,13 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { ExternalLink, Layers, LayoutDashboard, LogOut, Menu, Package, Settings, X } from "lucide-react";
+import { Contact, ExternalLink, History, Layers, LayoutDashboard, LogOut, Menu, Package, Settings, ShoppingBag, Users, X } from "lucide-react";
 import DayNightToggle from "@/components/storefront/DayNightToggle";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/admin/customers", label: "Customers", icon: Contact },
   { href: "/admin/categories", label: "Categories", icon: Layers },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/audit", label: "Activity", icon: History },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
