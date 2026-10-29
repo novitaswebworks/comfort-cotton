@@ -1,6 +1,6 @@
 export const WHATSAPP_NUMBER = "917420005600"; // Format without + or spaces
 
-export function generateWhatsAppLink(message: string): string {
+export function generateWhatsAppLink(message: string, number: string = WHATSAPP_NUMBER): string {
   const encodedMessage = encodeURIComponent(message);
   
   // Basic user agent check for mobile vs desktop
@@ -11,9 +11,9 @@ export function generateWhatsAppLink(message: string): string {
 
   if (isMobile) {
     // Force open the native app on mobile
-    return `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
+    return `whatsapp://send?phone=${number}&text=${encodedMessage}`;
   } else {
     // Open WhatsApp Web on desktop
-    return `https://web.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
+    return `https://web.whatsapp.com/send?phone=${number}&text=${encodedMessage}`;
   }
 }

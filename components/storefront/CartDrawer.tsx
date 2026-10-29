@@ -4,13 +4,16 @@ import { useCartStore } from "@/lib/store/useCartStore";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
 import { X, Minus, Plus, ShoppingBag, MessageCircle } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMounted } from "@/lib/use-mounted";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function CartDrawer() {
+export default function CartDrawer({ whatsappNumber }: { whatsappNumber?: string }) {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem, syncWithCatalogue } = useCartStore();
   const mounted = useMounted();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [placing, setPlacing] = useState(false);
 
   // Refresh prices/availability whenever the drawer opens.
   const itemIds = items.map((i) => i.id).join(",");
@@ -33,15 +36,33 @@ export default function CartDrawer() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleCheckout = () => {
-    let message = "Hello Comfort Cottons! I would like to place an order:\n\n";
+  // Log the order first so the WhatsApp message can carry its number. If logging fails
+  // for any reason, the customer still gets through to WhatsApp.
+  const handleCheckout = async () => {
+    if (placing) return;
+    setPlacing(true);
+    let orderNumber: number | null = null;
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: items.map((i) => ({ id: i.id, quantity: i.quantity })), name, phone }),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (res.ok) orderNumber = (await res.json()).orderNumber ?? null;
+    } catch {}
+
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://comfort-cotton.vercel.app";
+    let message = `Hello Comfort Cottons! I would like to place an order${orderNumber ? ` (Order #${orderNumber})` : ""}:\n\n`;
     items.forEach((item) => {
       message += `- ${item.quantity}x ${item.name}\n  Tag: #${item.tag}\n  Price: ₹${item.price * item.quantity}\n  Link: ${baseUrl}/product/${item.tag}\n\n`;
     });
-    message += `*Total Estimated Value: ₹${total}*\n\nName:\nDelivery address & pincode:\n\nPlease confirm availability, payment and shipping details.`;
+    message += `*Total Estimated Value: ₹${total}*\n\nName: ${name}\nDelivery address & pincode:\n\nPlease confirm availability, payment and shipping details.`;
 
-    window.open(generateWhatsAppLink(message), "_blank");
+    const link = generateWhatsAppLink(message, whatsappNumber);
+    // A window opened after an await can be blocked by the browser; fall back to navigating.
+    if (!window.open(link, "_blank")) window.location.href = link;
+    setPlacing(false);
   };
 
   return (
@@ -120,12 +141,17 @@ export default function CartDrawer() {
                   <span className="text-sm text-muted-foreground uppercase tracking-widest font-medium">Estimated Total</span>
                   <span className="text-2xl font-light" style={{ fontFamily: "'Playfair Display', serif" }}>₹{total}</span>
                 </div>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} autoComplete="name" placeholder="Your name (optional)" aria-label="Your name" className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground/70" />
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} inputMode="tel" autoComplete="tel" placeholder="Phone (optional)" aria-label="Phone number" className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground/70" />
+                </div>
                 <button 
                   onClick={handleCheckout}
-                  className="w-full flex items-center justify-center gap-3 bg-green-600 text-white px-6 py-4 rounded-xl hover:bg-green-700 transition-all font-semibold uppercase tracking-wider text-xs shadow-lg shadow-green-600/20"
+                  disabled={placing}
+                  className="w-full disabled:opacity-60 flex items-center justify-center gap-3 bg-green-600 text-white px-6 py-4 rounded-xl hover:bg-green-700 transition-all font-semibold uppercase tracking-wider text-xs shadow-lg shadow-green-600/20"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  Checkout via WhatsApp
+                  {placing ? "Opening WhatsApp…" : "Checkout via WhatsApp"}
                 </button>
                 <p className="text-center text-[10px] text-muted-foreground mt-4 tracking-wide uppercase">
                   Shipping & Taxes calculated at checkout
