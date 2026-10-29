@@ -6,7 +6,7 @@ import { Maximize2, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface ProductGalleryProps {
-  images: { url: string; alt: string }[];
+  images: { url: string; alt: string; label: string }[];
 }
 
 export default function ProductGallery({ images }: ProductGalleryProps) {
@@ -30,10 +30,10 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             {/* Context Label */}
             <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 mix-blend-difference text-white flex flex-col">
               <span className="text-[10px] uppercase tracking-[0.3em] opacity-70 mb-1">
-                {idx === 0 ? '01 / Full View' : '02 / Detail'}
+                {String(idx + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
               </span>
               <span className="text-sm font-medium tracking-widest uppercase">
-                {idx === 0 ? 'Overall Drape' : 'Fabric Quality'}
+                {image.label}
               </span>
             </div>
 

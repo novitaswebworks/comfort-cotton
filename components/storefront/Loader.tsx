@@ -13,6 +13,17 @@ export default function Loader() {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
+    // Play the intro once per browser session, and never for reduced-motion users.
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("cc_intro_seen") === "1";
+    } catch {}
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (seen || reduceMotion) {
+      setIsComplete(true); // eslint-disable-line react-hooks/set-state-in-effect
+      return;
+    }
+
     document.body.style.overflow = "hidden";
     const counter = { val: 0 };
     const filterState = { scale: 0, baseFrequency: 0.001 };
@@ -20,9 +31,14 @@ export default function Loader() {
     const tl = gsap.timeline({
       onComplete: () => {
         document.body.style.overflow = "";
+        try {
+          sessionStorage.setItem("cc_intro_seen", "1");
+        } catch {}
         setIsComplete(true);
       }
     });
+    // The full sequence is ~6.4s; run it at 3x so first-time visitors wait ~2s.
+    tl.timeScale(3);
 
     // 1. Rapid editorial counter
     tl.to(counter, {

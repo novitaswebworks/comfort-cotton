@@ -1,52 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
+// Position lives in motion values, so moving the mouse never re-renders React.
 export default function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [cursorVariant, setCursorVariant] = useState("default");
-  const [isMounted, setIsMounted] = useState(false);
+  const x = useMotionValue(-100);
+  const y = useMotionValue(-100);
+  const sx = useSpring(x, { stiffness: 600, damping: 45, mass: 0.3 });
+  const sy = useSpring(y, { stiffness: 600, damping: 45, mass: 0.3 });
 
   useEffect(() => {
-    setIsMounted(true); // eslint-disable-line react-hooks/set-state-in-effect
-    const mouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const onMove = (e: MouseEvent) => {
+      x.set(e.clientX - 16);
+      y.set(e.clientY - 16);
     };
-
-    window.addEventListener("mousemove", mouseMove);
-
-    return () => {
-      window.removeEventListener("mousemove", mouseMove);
-    };
-  }, []);
-
-  if (!isMounted) return null;
-  if (typeof window !== "undefined" && window.innerWidth < 768) return null;
-
-  const variants = {
-    default: {
-      x: mousePosition.x - 16,
-      y: mousePosition.y - 16,
-      backgroundColor: "rgba(0,0,0,0)",
-      border: "1px solid var(--foreground)",
-    },
-    hover: {
-      x: mousePosition.x - 48,
-      y: mousePosition.y - 48,
-      height: 96,
-      width: 96,
-      backgroundColor: "var(--foreground)",
-      mixBlendMode: "difference" as const,
-    }
-  };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [x, y]);
 
   return (
     <motion.div
-      className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] hidden md:flex items-center justify-center"
-      variants={variants}
-      animate={cursorVariant}
-      transition={{ type: "tween", ease: "backOut", duration: 0.15 }}
+      aria-hidden="true"
+      className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] hidden md:block [@media(pointer:coarse)]:hidden border border-foreground"
+      style={{ x: sx, y: sy }}
     />
   );
 }

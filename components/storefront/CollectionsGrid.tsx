@@ -67,19 +67,20 @@ export default function CollectionsGrid() {
               <Image fill 
                 src={cat.image} 
                 alt={cat.name} 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors duration-700 ease-out" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-black/10 md:bg-black/10 md:group-hover:bg-black/40 transition-colors duration-700 ease-out" />
               
-              <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
-                <div className="flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity duration-700 translate-y-4 group-hover:translate-y-0 text-white">
+              <div className="absolute inset-0 p-5 md:p-10 flex flex-col justify-between">
+                <div className="flex justify-between items-start md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 md:translate-y-4 md:group-hover:translate-y-0 text-white">
                   <span className="text-xs font-medium uppercase tracking-widest">
                     0{idx + 1}
                   </span>
                   <ArrowUpRight className="w-6 h-6" />
                 </div>
                 
-                <h3 className="text-3xl md:text-4xl font-light text-white tracking-wide translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-out" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-wide md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-700 ease-out" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {cat.name}
                 </h3>
               </div>

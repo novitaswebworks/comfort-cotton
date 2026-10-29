@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+// Inline film grain; avoids a third-party request for the noise texture.
+const GRAIN = `url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 export default function HeroResponsive({ heroImage = "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2942&auto=format&fit=crop" }: { heroImage?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const title1Ref = useRef<HTMLDivElement>(null);
-  const title2Ref = useRef<HTMLDivElement>(null);
-  const title3Ref = useRef<HTMLDivElement>(null);
+  const title1Ref = useRef<HTMLSpanElement>(null);
+  const title2Ref = useRef<HTMLSpanElement>(null);
+  const title3Ref = useRef<HTMLSpanElement>(null);
   const imgWrapperRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -69,51 +76,58 @@ export default function HeroResponsive({ heroImage = "https://images.unsplash.co
       <div className="h-12 md:h-16 w-full" />
 
       {/* Editorial Typography Reveal */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full px-2 md:px-6 flex flex-col items-center pointer-events-none mix-blend-difference text-white">
+      <h1 aria-label="The art of modern sleep" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full px-2 md:px-6 flex flex-col items-center pointer-events-none mix-blend-difference text-white">
         
-        <div className="reveal-mask md:-ml-48 -ml-12">
-          <h1 
-            ref={title1Ref} 
-            className="text-[14vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+        <span className="block reveal-mask md:-ml-48 -ml-8">
+          <span
+            ref={title1Ref}
+            aria-hidden="true"
+            className="block text-[17vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             THE ART
-          </h1>
-        </div>
+          </span>
+        </span>
 
-        <div className="reveal-mask -mt-1 md:-mt-6 z-10">
-          <h1 
-            ref={title2Ref} 
-            className="text-[12vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter text-outline mix-blend-difference whitespace-nowrap" 
+        <span className="block reveal-mask -mt-1 md:-mt-6 z-10">
+          <span
+            ref={title2Ref}
+            aria-hidden="true"
+            className="block text-[15vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter text-outline mix-blend-difference whitespace-nowrap" 
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             OF MODERN
-          </h1>
-        </div>
+          </span>
+        </span>
 
-        <div className="reveal-mask md:ml-48 ml-16 -mt-1 md:-mt-6 z-10">
-          <h1 
-            ref={title3Ref} 
-            className="text-[14vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
+        <span className="block reveal-mask md:ml-48 ml-10 -mt-1 md:-mt-6 z-10">
+          <span
+            ref={title3Ref}
+            aria-hidden="true"
+            className="block text-[17vw] md:text-[clamp(4rem,9vw,150px)] font-light leading-[0.85] tracking-tighter whitespace-nowrap"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             SLEEP.
-          </h1>
-        </div>
+          </span>
+        </span>
 
-      </div>
+      </h1>
 
       {/* Main Image with Mask */}
       <div className="absolute inset-0 z-10 flex items-center justify-center p-2 md:p-12 pointer-events-none">
         <div ref={imgWrapperRef} className="relative w-full h-[85vh] md:w-[80%] md:max-w-[1400px] md:h-[90%] md:max-h-[800px] xl:max-h-[900px] overflow-hidden rounded-2xl md:rounded-none mt-10 md:mt-0 shadow-2xl">
-          <img 
+          <Image
             ref={imgRef}
-            src={heroImage} 
-            alt="Premium Cottons Bedsheets"
+            src={heroImage}
+            alt="Premium cotton bedsheets from Comfort Cottons"
+            width={1920}
+            height={1280}
+            priority
+            sizes="(max-width: 768px) 100vw, 80vw"
             className="absolute top-0 left-0 w-full h-[120%] object-cover object-[center_30%] origin-top brightness-[0.85]"
           />
           {/* Grain overlay for luxury feel */}
-          <div className="absolute inset-0 opacity-[0.05] mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+          <div className="absolute inset-0 opacity-[0.05] mix-blend-multiply" style={{ backgroundImage: GRAIN }} />
         </div>
       </div>
 

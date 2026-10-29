@@ -3,19 +3,38 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 }
 
 @layer base {
   :root {
-    /* Luxury Light Theme: Warm Off-White */
+    /* Luxury Light Theme: Warm Off-White + brand navy */
     --background: #EAE6DF;
     --foreground: #1A1A1A;
     --border: #D1CEC7;
+    --input: #CFCBC3;
+    --ring: #172535;
+    --card: #F4F1EB;
+    --muted: #DFDAD1;
+    --muted-foreground: #6B665C;
+    --primary: #172535;
+    --primary-foreground: #F2EFE9;
+    --destructive: #B42318;
+    --success: #1F7A4D;
+    --warning: #B45309;
   }
 
   .dark {
@@ -23,6 +42,16 @@
     --background: #0D0D0D;
     --foreground: #F2EFE9;
     --border: #2A2A2A;
+    --input: #333333;
+    --ring: #EAE6DF;
+    --card: #151515;
+    --muted: #1C1C1C;
+    --muted-foreground: #9A958B;
+    --primary: #EAE6DF;
+    --primary-foreground: #172535;
+    --destructive: #F97066;
+    --success: #4ADE80;
+    --warning: #FBBF24;
   }
 }
 

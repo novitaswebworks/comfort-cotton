@@ -17,6 +17,7 @@ interface CartStore {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  syncWithCatalogue: (latest: Pick<CartItem, 'id' | 'name' | 'price' | 'image_url'>[]) => void;
   toggleCart: () => void;
   setIsOpen: (isOpen: boolean) => void;
 }
@@ -50,6 +51,16 @@ export const useCartStore = create<CartStore>()(
           ),
         })),
       clearCart: () => set({ items: [] }),
+      syncWithCatalogue: (latest) =>
+        set((state) => {
+          const byId = new Map(latest.map((p) => [p.id, p]));
+          // Drop items that are no longer published; refresh price/name/image on the rest.
+          return {
+            items: state.items
+              .filter((i) => byId.has(i.id))
+              .map((i) => ({ ...i, ...byId.get(i.id)! })),
+          };
+        }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
       setIsOpen: (isOpen) => set({ isOpen }),
     }),

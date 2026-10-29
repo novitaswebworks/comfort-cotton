@@ -1,27 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, ArrowUpRight, ShoppingBag } from "lucide-react";
+import { ArrowUpRight, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/lib/store/useCartStore";
 import Link from "next/link";
+import Image from "next/image";
+import type { Product } from "@/lib/products";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
-
-export interface Product {
-  id: string;
-  name: string;
-  type: string;
-  price: number;
-  material: string;
-  tag: string;
-  image_url: string;
-  zoom_image_url: string;
-  category: string;
-  pillow_image_url: string;
-}
 
 export default function ProductLookbook({ products, chapter = 1, title = "The Collection" }: { products: Product[]; chapter?: number; title?: string }) {
   const { addItem } = useCartStore();
@@ -133,18 +122,25 @@ export default function ProductLookbook({ products, chapter = 1, title = "The Co
               onTouchEnd={() => setActiveProduct(null)}
             >
               <div className="absolute inset-0 w-[120%] -left-[10%]">
-                <img 
-                  src={product.image_url} 
+                <Image
+                  fill
+                  src={product.image_url}
                   alt={product.name}
-                  className={`lookbook-img absolute inset-0 w-full h-full object-cover transition-opacity duration-[1.5s] ${activeProduct === product.id ? 'opacity-0' : 'opacity-100'}`}
+                  sizes="(max-width: 768px) 95vw, 70vw"
+                  priority={index === 0}
+                  className={`lookbook-img object-cover transition-opacity duration-[1.5s] ${activeProduct === product.id ? 'opacity-0' : 'opacity-100'}`}
                 />
               </div>
               
-              <img 
-                src={product.zoom_image_url} 
-                alt={`${product.name} texture`}
-                className={`absolute inset-0 w-full h-full object-cover scale-[1.15] transition-all duration-[2s] ease-out ${activeProduct === product.id ? 'opacity-100 scale-100' : 'opacity-0'}`}
-              />
+              {product.zoom_image_url && (
+                <Image
+                  fill
+                  src={product.zoom_image_url}
+                  alt={`${product.name} texture`}
+                  sizes="(max-width: 768px) 95vw, 70vw"
+                  className={`object-cover scale-[1.15] transition-all duration-[2s] ease-out ${activeProduct === product.id ? 'opacity-100 scale-100' : 'opacity-0'}`}
+                />
+              )}
 
               <div className={`absolute inset-0 bg-background/20 backdrop-blur-sm flex flex-col items-center justify-center text-foreground transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)] ${activeProduct === product.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <p className="text-xs tracking-[0.2em] uppercase mb-4 font-medium">{product.material}</p>

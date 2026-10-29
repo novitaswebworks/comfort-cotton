@@ -1,69 +1,77 @@
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
+import { getProductByTag, getRelatedProducts } from '@/lib/products';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle } from 'lucide-react';
 import AddToCartButton from '@/components/storefront/AddToCartButton';
 import ProductGallery from './ProductGallery';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
+export const revalidate = 60;
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('tag', resolvedParams.tag)
-    .eq('status', 'Published')
-    .single();
+// Pages are rendered on first request, then cached and revalidated like the rest of the catalogue.
+export function generateStaticParams() {
+  return [];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
+  const { tag } = await params;
+  const { data: product } = await getProductByTag(tag);
 
   if (!product) {
-    return { title: 'Product Not Found - Comfort Cottons' };
+    return { title: 'Product not found', robots: { index: false } };
   }
 
+  const description = product.description || `${product.material}. Available now for ₹${product.price}.`;
   return {
-    title: `${product.name} | Comfort Cottons`,
-    description: `${product.material}. Available now for ₹${product.price}.`,
+    title: product.name,
+    description,
+    alternates: { canonical: `/product/${product.tag}` },
     openGraph: {
-      title: `${product.name} | Comfort Cottons`,
-      description: `${product.material}. Luxury bedding for your home.`,
+      title: `${product.name} | ${SITE_NAME}`,
+      description,
+      url: `/product/${product.tag}`,
       images: [{ url: product.image_url }],
     },
   };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ tag: string }> }) {
-  const resolvedParams = await params;
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
-
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('tag', resolvedParams.tag)
-    .eq('status', 'Published')
-    .single();
+  const { tag } = await params;
+  const { data: product } = await getProductByTag(tag);
 
   if (!product) {
     notFound();
   }
 
-  const { data: relatedProducts } = await supabase
-    .from('products')
-    .select('*')
-    .eq('category', product.category)
-    .eq('status', 'Published')
-    .neq('id', product.id)
-    .limit(3);
+  const { data: relatedProducts } = await getRelatedProducts(product);
 
-  
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || product.material,
+    sku: product.tag,
+    category: product.category,
+    material: product.material,
+    image: [product.image_url, product.zoom_image_url].filter(Boolean),
+    url: `${SITE_URL}/product/${product.tag}`,
+    brand: { '@type': 'Brand', name: SITE_NAME },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      price: product.price,
+      availability: 'https://schema.org/InStock',
+      url: `${SITE_URL}/product/${product.tag}`,
+    },
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground pb-24 md:pb-0">
-      
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
 
       <div className="flex flex-col-reverse md:flex-row min-h-screen">
         {/* Left: Sticky Details */}
@@ -97,7 +105,8 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
               <div className="pt-8 border-t border-border">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-3 font-semibold">The Details</p>
                 <p className="text-base text-foreground/80 leading-relaxed font-normal">
-                  Experience the ultimate luxury. Our fabrics are carefully selected to provide maximum breathability, durability, and a buttery-soft texture that improves with every wash. Designed to bring a touch of elegance to your most intimate spaces.
+                  {product.description ||
+                    'Our fabrics are carefully selected for breathability, durability and a soft texture that improves with every wash.'}
                 </p>
               </div>
             </div>
@@ -111,9 +120,9 @@ export default async function ProductPage({ params }: { params: Promise<{ tag: s
         {/* Right: Scrollable Gallery */}
         <div className="w-full md:w-[55vw] lg:w-[60vw] flex flex-col bg-muted/20">
           <ProductGallery images={[
-            { url: product.image_url, alt: `${product.name} Full View` },
-            { url: product.zoom_image_url, alt: `${product.name} Fabric Texture Detail` },
-            ...(product.pillow_image_url && product.pillow_image_url.startsWith('http') ? [{ url: product.pillow_image_url, alt: `${product.name} Matching Pillow Covers` }] : [])
+            { url: product.image_url, alt: `${product.name} full view`, label: 'Overall drape' },
+            ...(product.zoom_image_url ? [{ url: product.zoom_image_url, alt: `${product.name} fabric texture detail`, label: 'Fabric quality' }] : []),
+            ...(product.pillow_image_url && product.pillow_image_url.startsWith('http') ? [{ url: product.pillow_image_url, alt: `${product.name} matching pillow covers`, label: 'Matching pillow covers' }] : [])
           ]} />
         </div>
       </div>

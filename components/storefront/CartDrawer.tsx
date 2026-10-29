@@ -4,16 +4,30 @@ import { useCartStore } from "@/lib/store/useCartStore";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
 import { X, Minus, Plus, ShoppingBag, MessageCircle } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function CartDrawer() {
-  const { items, isOpen, setIsOpen, updateQuantity, removeItem } = useCartStore();
-  const [mounted, setMounted] = useState(false);
+  const { items, isOpen, setIsOpen, updateQuantity, removeItem, syncWithCatalogue } = useCartStore();
+  const mounted = useMounted();
 
+  // Refresh prices/availability whenever the drawer opens.
+  const itemIds = items.map((i) => i.id).join(",");
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!isOpen || !itemIds) return;
+    const controller = new AbortController();
+    fetch("/api/cart/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: itemIds.split(",") }),
+      signal: controller.signal,
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data?.items && syncWithCatalogue(data.items))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [isOpen, itemIds, syncWithCatalogue]);
 
   if (!mounted) return null;
 
@@ -25,7 +39,7 @@ export default function CartDrawer() {
     items.forEach((item) => {
       message += `- ${item.quantity}x ${item.name}\n  Tag: #${item.tag}\n  Price: ₹${item.price * item.quantity}\n  Link: ${baseUrl}/product/${item.tag}\n\n`;
     });
-    message += `*Total Estimated Value: ₹${total}*\n\nPlease let me know the payment and shipping details.`;
+    message += `*Total Estimated Value: ₹${total}*\n\nName:\nDelivery address & pincode:\n\nPlease confirm availability, payment and shipping details.`;
 
     window.open(generateWhatsAppLink(message), "_blank");
   };

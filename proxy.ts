@@ -9,7 +9,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Check for the admin role in the public metadata
     const authObject = await auth();
-    const role = (authObject.sessionClaims?.metadata as any)?.role;
+    const role = (authObject.sessionClaims?.metadata as { role?: string } | undefined)?.role;
     if (role !== 'admin') {
       const url = new URL('/', req.url);
       return Response.redirect(url);
