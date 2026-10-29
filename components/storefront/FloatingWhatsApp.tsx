@@ -5,7 +5,7 @@ import { generateWhatsAppLink } from "@/lib/whatsapp";
 import { usePathname } from "next/navigation";
 import { useMounted } from "@/lib/use-mounted";
 
-export default function FloatingWhatsApp() {
+export default function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber?: string }) {
   const mounted = useMounted();
   const pathname = usePathname();
   // Product pages have a fixed add-to-bag bar on mobile; sit above it there.
@@ -14,7 +14,7 @@ export default function FloatingWhatsApp() {
   if (!mounted) return null;
 
   const handleChat = () => {
-    window.open(generateWhatsAppLink("Hello! I have a question about your products."), "_blank");
+    window.open(generateWhatsAppLink("Hello! I have a question about your products.", whatsappNumber), "_blank");
   };
 
   return (

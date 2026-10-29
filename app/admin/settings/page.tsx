@@ -4,7 +4,8 @@ import { CheckCircle2, Download, XCircle } from "lucide-react";
 import { PageHeader, Panel, btn } from "@/components/admin/ui";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { SITE_URL } from "@/lib/site";
-import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
+import { getSettings } from "@/lib/settings";
+import SettingsForm from "@/components/admin/SettingsForm";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Settings" };
@@ -33,7 +34,7 @@ function Row({ label, ok, detail }: { label: string; ok: boolean; detail?: strin
 }
 
 export default async function SettingsPage() {
-  const [db, user, { sessionClaims }] = await Promise.all([checkDatabase(), currentUser(), auth()]);
+  const [db, user, { sessionClaims }, settings] = await Promise.all([checkDatabase(), currentUser(), auth(), getSettings()]);
   const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
   const cloudinary = !!(process.env.CLOUDINARY_API_SECRET && (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME) && (process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY));
   const dbHost = (() => { try { return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").host; } catch { return "not set"; } })();
@@ -55,8 +56,7 @@ export default async function SettingsPage() {
           <dl className="divide-y divide-border text-sm">
             {[
               ["Site URL", SITE_URL],
-              ["WhatsApp orders", `+${WHATSAPP_NUMBER}`],
-              ["Environment", process.env.NODE_ENV],
+                            ["Environment", process.env.NODE_ENV],
             ].map(([k, val]) => (
               <div key={k} className="flex justify-between gap-4 py-3">
                 <dt className="text-muted-foreground">{k}</dt>
@@ -65,8 +65,12 @@ export default async function SettingsPage() {
             ))}
           </dl>
           <p className="mt-3 text-xs text-muted-foreground">
-            These come from environment variables and code constants. Change <code>NEXT_PUBLIC_SITE_URL</code> in your hosting settings, and the WhatsApp number in <code>lib/whatsapp.ts</code>.
+            These come from environment variables and code constants. Change <code>NEXT_PUBLIC_SITE_URL</code> in your hosting settings. The WhatsApp number is edited in Store settings above.
           </p>
+        </Panel>
+
+        <Panel title="Store settings" className="lg:col-span-2">
+          <SettingsForm whatsappNumber={settings.whatsapp_number} />
         </Panel>
 
         <Panel title="Data tools" className="lg:col-span-2">
